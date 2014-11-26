@@ -12,6 +12,7 @@ galaxy_info:
   # break by error
   platforms:
   - name: Fedora
+    versions:
     - 20
     - 21
   categories:
