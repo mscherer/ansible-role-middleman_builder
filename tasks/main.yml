@@ -1,0 +1,49 @@
+---
+- name: install packages
+  yum: pkg={{ item }} state=installed
+  with_items:
+  - rubygem-bundler
+  - ruby-devel
+  - curl-devel
+  - git
+  - make
+  - gcc
+  - gcc-c++
+  - ImageMagick
+# used to send email about build broken
+  - mutt
+# nokogiri build requires patch
+  - patch
+
+- set_fact: checkout_dir="/srv/builder/{{ name }}"
+
+- copy: dest=/usr/local/bin/build_deploy.sh src=build_deploy.sh mode=755 owner=root group=root
+
+- user:
+   name="{{ builder_user }}"
+   comment="Middleman builder user"
+   generate_ssh_key=yes
+   home="/srv/builder"
+   ssh_key_file="/srv/builder/.ssh/{{ name }}_id.rsa"
+  register: result
+
+- git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}"
+  sudo: yes
+  sudo_user: '{{ builder_user }}'
+
+- command: chdir="{{ checkout_dir }}" bundle install
+  sudo: yes
+  sudo_user: '{{ builder_user }}'
+
+- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} '{{ remote_user }}@{{ remote_server }}:{{remote_location}}' {{ git_version }} {{ error_mail }}" user="{{ builder_user }}"
+
+# TODO add ip restriction
+- authorized_key:
+      key="{{ result.ssh_public_key }}"
+      key_options="command=\"rsync --server -vlogDtprze.isf . {{ remote_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+      user="{{ remote_user }}"
+  delegate_to: "{{ remote_server }}"
+  remote_user: "{{ remote_user }}"
+  when: remote_server is defined and remote_location is defined and remote_user is defined
+
+# comment faire pour openshift ?
