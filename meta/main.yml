@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Michael Scherer
-  description: Auto builder for middleman based static wbesite, deployed by OSAS
+  description: Auto builder for middleman based static website, deployed by OSAS
   company: Red Hat
   license: MIT
   min_ansible_version: 1.2
