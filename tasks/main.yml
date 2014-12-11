@@ -35,7 +35,14 @@
   sudo: yes
   sudo_user: '{{ builder_user }}'
 
-- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} '{{ remote_user }}@{{ remote_server }}:{{remote_location}}' {{ git_version }} {{ error_mail }}" user="{{ builder_user }}"
+- set_fact:
+      remote_url: ""
+
+- set_fact:
+      remote_url: "{{ remote_user }}@{{ remote_server }}:{{remote_location}}"
+  when: remote_server is defined and remote_location is defined and remote_user is defined
+
+- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} {{ git_version }} {{ error_mail }} '{{ remote_url }}'" user="{{ builder_user }}"
 
 # TODO add ip restriction
 - authorized_key:
@@ -45,5 +52,3 @@
   delegate_to: "{{ remote_server }}"
   remote_user: "{{ remote_user }}"
   when: remote_server is defined and remote_location is defined and remote_user is defined
-
-# comment faire pour openshift ?

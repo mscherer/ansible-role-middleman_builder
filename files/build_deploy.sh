@@ -1,9 +1,10 @@
 #!/bin/bash
 export PATH="/usr/local/bin:/srv/builder/bin:$PATH"
 NAME=$1
-REMOTE=$2
-BRANCH=$3
-EMAIL_ERROR=$4
+BRANCH=$2
+EMAIL_ERROR=$3
+# keep remote last, since that's a optional argument
+REMOTE=$4
 
 if [ -f ~/lock_${NAME} ]; then
     exit 0
@@ -34,7 +35,11 @@ if [ $? -ne 0 ]; then
 fi
 
 rm -f ~/error_${NAME}
-rsync -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/${NAME}_id.rsa" -rqavz $DIR/build/ $REMOTE/
+if [[ ! -z $REMOTE ]] ; then
+    rsync -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/${NAME}_id.rsa" -rqavz $DIR/build/ $REMOTE/
+else
+    bundle exec middleman deploy
+fi;
 
 date > ~/last_update_$NAME
 rm -f ~/lock_${NAME} ~/git_updated_${NAME}
