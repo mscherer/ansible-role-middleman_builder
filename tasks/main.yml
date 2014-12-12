@@ -20,7 +20,7 @@
 - copy: dest=/usr/local/bin/build_deploy.sh src=build_deploy.sh mode=755 owner=root group=root
 
 - user:
-   name="{{ builder_user }}"
+   name="{{ builder_username }}"
    comment="Middleman builder user"
    generate_ssh_key=yes
    home="/srv/builder"
@@ -29,11 +29,11 @@
 
 - git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}"
   sudo: yes
-  sudo_user: '{{ builder_user }}'
+  sudo_user: '{{ builder_username }}'
 
 - command: chdir="{{ checkout_dir }}" bundle install
   sudo: yes
-  sudo_user: '{{ builder_user }}'
+  sudo_user: '{{ builder_username }}'
 
 - set_fact:
       remote_url: ""
@@ -42,7 +42,7 @@
       remote_url: "{{ remote_user }}@{{ remote_server }}:{{remote_location}}"
   when: remote_server is defined and remote_location is defined and remote_user is defined
 
-- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} {{ git_version }} {{ error_mail }} '{{ remote_url }}'" user="{{ builder_user }}"
+- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} {{ git_version }} {{ error_mail }} '{{ remote_url }}'" user="{{ builder_username }}"
 
 # TODO add ip restriction
 - authorized_key:
