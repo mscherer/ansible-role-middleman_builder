@@ -44,6 +44,14 @@
 
 - cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh {{ name }} {{ git_version }} {{ error_mail }} '{{ remote_url }}'" user="{{ builder_username }}"
 
+- cron:
+      name="force update of {{ name }}"
+      job="/usr/bin/touch ~/git_updated_{{ name }}"
+      user="{{ builder_username }}"
+      minute="{{ auto_deploy_minute | default(omit) }}"
+      hour="{{ auto_deploy_hour | default(omit) }}"
+  when: auto_deploy_hour is defined or auto_deploy_minute is defined
+
 # TODO add ip restriction
 - authorized_key:
       key="{{ result.ssh_public_key }}"
