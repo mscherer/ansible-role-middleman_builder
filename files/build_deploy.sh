@@ -23,6 +23,7 @@ fi
 
 touch  ~/git_updated_${NAME}
 git pull --rebase
+git submodule update
 bundle install
 bundle exec middleman build > ~/error_${NAME} 2>&1
 
