@@ -6,7 +6,7 @@ EMAIL_ERROR=$3
 # keep remote last, since that's a optional argument
 REMOTE=$4
 
-LOCKFILE=~/lock_${NAME}
+LOCKFILE=${XDG_RUNTIME_DIR:-~}/lock_${NAME}
 if [ -f $LOCKFILE ]; then
     exit 0
 fi
