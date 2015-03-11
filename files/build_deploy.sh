@@ -6,18 +6,19 @@ EMAIL_ERROR=$3
 # keep remote last, since that's a optional argument
 REMOTE=$4
 
-if [ -f ~/lock_${NAME} ]; then
+LOCKFILE=~/lock_${NAME}
+if [ -f $LOCKFILE ]; then
     exit 0
 fi
 
-date > ~/lock_${NAME}
+date > $LOCKFILE
 
 DIR="/srv/builder/$NAME"
 cd $DIR
 git fetch -q
 
 if [ $( git diff --name-only origin/${BRANCH:-master} | wc -l ) -eq 0 -a ! -f ~/git_updated_${NAME} ]; then
-  rm -f ~/lock_${NAME}
+  rm -f $LOCKFILE
   exit 0
 fi
 
@@ -31,7 +32,7 @@ if [ $? -ne 0 ]; then
     if [ -n "$MAIL" ]; then
         echo "Build failed for $NAME" | EMAIL=nobody@redhat.com mutt -s "Build failed for $NAME" $EMAIL_ERROR -a ~/error_${NAME}
     fi
-    rm -f ~/lock_${NAME}
+    rm -f $LOCKFILE
     exit 1
 fi
 
@@ -43,4 +44,4 @@ else
 fi;
 
 date > ~/last_update_$NAME
-rm -f ~/lock_${NAME} ~/git_updated_${NAME}
+rm -f $LOCKFILE ~/git_updated_${NAME}
