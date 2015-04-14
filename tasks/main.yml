@@ -14,6 +14,8 @@
   - mutt
 # nokogiri build requires patch
   - patch
+# nokogiri also requires zlib-devel to build libxml
+  - zlib-devel
 
 - set_fact: checkout_dir="/srv/builder/{{ name }}"
 
