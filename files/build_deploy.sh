@@ -26,7 +26,7 @@ touch  ~/git_updated_${NAME}
 git pull --rebase
 git submodule update
 bundle install
-bundle exec middleman build > ~/error_${NAME} 2>&1
+bundle exec middleman build --verbose > ~/error_${NAME} 2>&1
 
 if [ $? -ne 0 ]; then
     if [ -n "$MAIL" ]; then
