@@ -29,7 +29,7 @@
    ssh_key_file="/srv/builder/.ssh/{{ name }}_id.rsa"
   register: result
 
-- git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}"
+- git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}" update="no"
   sudo: yes
   sudo_user: '{{ builder_username }}'
 
