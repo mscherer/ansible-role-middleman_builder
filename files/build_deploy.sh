@@ -38,7 +38,7 @@ fi
 
 rm -f ~/error_${NAME}
 if [[ ! -z $REMOTE ]] ; then
-    rsync -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/${NAME}_id.rsa" -rqavz $DIR/build/ $REMOTE/
+    rsync -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/${NAME}_id.rsa" --delete-after -rqavz $DIR/build/ $REMOTE/
 else
     bundle exec middleman deploy
 fi;
