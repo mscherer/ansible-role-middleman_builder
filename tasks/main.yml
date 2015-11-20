@@ -25,6 +25,9 @@
 
 - copy: dest=/usr/local/bin/build_deploy.sh src=build_deploy.sh mode=755 owner=root group=root
 
+# needed so NRPE can check log
+- file: path="/srv/builder" mode=755 state=directory
+
 - user:
    name="{{ builder_username }}"
    comment="Middleman builder user"
