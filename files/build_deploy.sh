@@ -24,7 +24,9 @@ fi
 
 touch  ~/git_updated_${NAME}
 git pull --rebase
-git submodule update
+# see https://github.com/ManageIQ/manageiq.org/issues/234
+[ "$UPDATE_SUBMODULES" == "no" ] || git submodule update
+
 bundle install
 bundle exec middleman build --verbose > ~/error_${NAME} 2>&1
 

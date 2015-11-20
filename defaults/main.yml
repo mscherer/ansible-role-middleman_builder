@@ -1,3 +1,4 @@
 # the username that will run the middleman builder
 # # user will be created along a pair of ssh key
 builder_username: middleman_builder
+update_submodules: True
