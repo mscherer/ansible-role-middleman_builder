@@ -64,7 +64,7 @@
 # TODO add ip restriction
 - authorized_key:
       key="{{ result.ssh_public_key }}"
-      key_options="command=\"rsync --server -vlogDtprze.isf . {{ remote_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+      key_options="command=\"rsync --server -vlogDtprze.isf --delete-after . {{ remote_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
       user="{{ remote_user }}"
   delegate_to: "{{ remote_server }}"
   remote_user: "{{ remote_user }}"
