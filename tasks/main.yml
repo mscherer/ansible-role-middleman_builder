@@ -25,11 +25,7 @@
 
 - set_fact: checkout_dir="/srv/builder/{{ name }}"
 
-# since that's a bash script, we can't use fancy boolean, etc
-- set_fact: update_submodules="no"
-  when: not update_submodules
-
-- copy: dest=/usr/local/bin/build_deploy.sh src=build_deploy.sh mode=755 owner=root group=root
+- copy: dest=/usr/local/bin/build_deploy.py src=build_deploy.py mode=755 owner=root group=root
 
 # needed so NRPE can check log
 - file: path="/srv/builder" mode=755 state=directory
@@ -57,15 +53,9 @@
       remote_url: "{{ remote_user }}@{{ remote_server }}:{{remote_location}}"
   when: remote_server is defined and remote_location is defined and remote_user is defined
 
-- cron: name="build and deploy {{ name }}" job="UPDATE_SUBMODULES={{ update_submodules }} /usr/local/bin/build_deploy.sh {{ name }} {{ git_version }} {{ error_mail }} '{{ remote_url }}'" user="{{ builder_username }}"
+- template: dest=/srv/builder/{{ name }}.yml src=builder.yml
 
-- cron:
-      name="force update of {{ name }}"
-      job="/usr/bin/touch ~/git_updated_{{ name }}"
-      user="{{ builder_username }}"
-      minute="{{ auto_deploy_minute | default(omit) }}"
-      hour="{{ auto_deploy_hour | default(omit) }}"
-  when: auto_deploy_hour is defined or auto_deploy_minute is defined
+- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh /srv/builder/{{ name }}.yml" user="{{ builder_username }}"
 
 # TODO add ip restriction
 - authorized_key:
