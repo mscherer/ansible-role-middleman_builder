@@ -29,7 +29,7 @@ import os
 import subprocess
 import datetime
 import atexit
-
+import syslog
 
 #TODO use real options
 debug = False
@@ -157,6 +157,8 @@ if not start_build:
     debug_print("Nothing to build")
     sys.exit(0)
 
+syslog.syslog("Start the build of {}".format(name))
+
 os.chdir(checkout_dir)
 if config.get('force_checkout', False):
     subprocess.call(['git','checkout', '-f'])
@@ -172,21 +174,24 @@ if config.get('update_submodule_head', False):
 
 os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + os.environ['PATH'] 
 try:
+    syslog.syslog("Build of {}: bundle install".format(name))
     result = subprocess.check_output(['bundle','install'])
 except subprocess.CalledProcessError, C:
     notify_error(C.output)
 
 try:
+    syslog.syslog("Build of {}: bundle exec middleman build".format(name))
     result = subprocess.check_output(['bundle','exec', 'middleman', 'build', '--verbose'])
 except subprocess.CalledProcessError, C:
     notify_error(C.output)
 
 
-
+syslog.syslog("Build of {}: start sync".format(name))
 if config['remote']:
     subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/{}_id.rsa'.format(name), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
 else:
     subprocess.call(['bundle','exec', 'middleman', 'deploy'])
+syslog.syslog("Build of {}: finish sync".format(name))
 
 status = {}
 status['last_build_commit'] = current_commit
