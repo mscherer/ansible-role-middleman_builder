@@ -30,11 +30,23 @@ import subprocess
 import datetime
 import atexit
 import syslog
+import argparse
 
-#TODO use real options
-debug = False
+
+parser = argparse.ArgumentParser(description="Build middleman sites based "
+                                             "on changes in git")
+parser.add_argument("-f", "--force", help="force the rebuild",
+                    action="store_true")
+parser.add_argument("-n", "--dry-run", help="do not sync remotely",
+                    action="store_true")
+parser.add_argument("-d", "--debug", help="show debug output",
+                    action="store_true")
+parser.add_argument("config_file", help="yaml file for the builder config")
+
+args = parser.parse_args()
+
 def debug_print(message):
-    if debug:
+    if args.debug:
         print message
 
 def refresh_checkout(checkout_dir):
@@ -87,14 +99,14 @@ def notify_error(error):
     pass
 
 
-if len(sys.argv) != 2:
+if not args.config_file:
     print "This script take only 1 single argument, the config file"
     sys.exit(1)
 
-config = load_config(sys.argv[1])
+config = load_config(args.config_file)
 
 if not 'name' in config:
-    print "Incorrect config file: {}".format(sys.argv[1])
+    print "Incorrect config file: {}".format(args.config_file)
     sys.exit(1)
 
 
@@ -153,6 +165,9 @@ for submodule in get_submodules_checkout(checkout_dir):
     if current_submodule_commits[submodule] != submodule_commits.get(submodule, ''):
         start_build = True
 
+if args.force:
+    start_build = True
+
 if not start_build:
     debug_print("Nothing to build")
     sys.exit(0)
@@ -185,13 +200,15 @@ try:
 except subprocess.CalledProcessError, C:
     notify_error(C.output)
 
-
-syslog.syslog("Build of {}: start sync".format(name))
-if config['remote']:
-    subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/{}_id.rsa'.format(name), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
+if not args.dry_run:
+    syslog.syslog("Build of {}: start sync".format(name))
+    if config['remote']:
+        subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/{}_id.rsa'.format(name), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
+    else:
+        subprocess.call(['bundle','exec', 'middleman', 'deploy'])
+    syslog.syslog("Build of {}: finish sync".format(name))
 else:
-    subprocess.call(['bundle','exec', 'middleman', 'deploy'])
-syslog.syslog("Build of {}: finish sync".format(name))
+    syslog.syslog("Build of {}: not syncing, dry-run".format(name))
 
 status = {}
 status['last_build_commit'] = current_commit
