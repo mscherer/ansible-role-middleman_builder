@@ -79,7 +79,7 @@ def load_config(config_file):
 
 def has_submodules(checkout_dir):
     os.chdir(checkout_dir)
-    r = subprocess.check_output(['git','submodule','status'], env=env)
+    r = subprocess.check_output(['git','submodule','status'])
     return len(r) > 0
 
 # TODO complete that
