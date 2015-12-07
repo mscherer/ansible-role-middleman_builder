@@ -1,0 +1,10 @@
+name: {{ name }}
+email_errors:
+{% for w in watchers %}
+- {{ w }}
+{% endfor %}
+# unused for now
+email_commiter: False
+remote: {{ remote_url }}
+# in hours
+regular_rebuild_interval: 6

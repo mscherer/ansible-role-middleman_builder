@@ -55,7 +55,7 @@
 
 - template: dest=/srv/builder/{{ name }}.yml src=builder.yml
 
-- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.sh /srv/builder/{{ name }}.yml" user="{{ builder_username }}"
+- cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml" user="{{ builder_username }}"
 
 # TODO add ip restriction
 - authorized_key:
