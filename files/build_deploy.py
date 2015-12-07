@@ -203,7 +203,7 @@ except subprocess.CalledProcessError, C:
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
     if config['remote']:
-        subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/{}_id.rsa'.format(name), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
+        subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ' + os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
     else:
         subprocess.call(['bundle','exec', 'middleman', 'deploy'])
     syslog.syslog("Build of {}: finish sync".format(name))
