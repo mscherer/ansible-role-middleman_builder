@@ -17,6 +17,12 @@
 # nokogiri also requires zlib-devel to build libxml
   - zlib-devel
 
+- name: install packages
+  action: "{{ ansible_pkg_mgr }} pkg={{ item }} state=installed"
+  with_items:
+  - redhat-rpm-config
+  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23' 
+
 - set_fact: checkout_dir="/srv/builder/{{ name }}"
 
 # since that's a bash script, we can't use fancy boolean, etc
