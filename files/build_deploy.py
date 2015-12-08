@@ -96,7 +96,8 @@ def has_submodules(checkout_dir):
 
 # TODO complete that
 def notify_error(error):
-    pass
+    print error
+    sys.exit(3)
 
 
 if not args.config_file:
