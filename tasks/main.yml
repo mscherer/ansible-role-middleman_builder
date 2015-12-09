@@ -21,7 +21,7 @@
   action: "{{ ansible_pkg_mgr }} pkg={{ item }} state=installed"
   with_items:
   - redhat-rpm-config
-  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23' 
+  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23'
 
 - set_fact: checkout_dir="/srv/builder/{{ name }}"
 
