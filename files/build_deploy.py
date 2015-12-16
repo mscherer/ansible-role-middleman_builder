@@ -95,7 +95,7 @@ def has_submodules(checkout_dir):
     return len(r) > 0
 
 # TODO complete that
-def notify_error(error):
+def notify_error(stage, error):
     print error
     sys.exit(3)
 
@@ -192,16 +192,17 @@ try:
     syslog.syslog("Build of {}: bundle install".format(name))
     result = subprocess.check_output(['bundle','install'])
 except subprocess.CalledProcessError, C:
-    notify_error(C.output)
+    notify_error('install', C.output)
 
 try:
     syslog.syslog("Build of {}: bundle exec middleman build".format(name))
     result = subprocess.check_output(['bundle','exec', 'middleman', 'build', '--verbose'])
 except subprocess.CalledProcessError, C:
-    notify_error(C.output)
+    notify_error('build', C.output)
 
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
+    # TODO log the message
     if config['remote']:
         subprocess.call(['rsync', '-e', 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ' + os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)), '--delete-after', '-rqavz', '%s/build/' % checkout_dir, config['remote']])
     else:
