@@ -114,7 +114,7 @@ if not 'name' in config:
 name = config['name']
 
 
-lock_file = os.path.expanduser('%s/lock_%s' % (os.environ.get('XDG_RUNTIME_DIR','~'),name)
+lock_file = os.path.expanduser('%s/lock_%s' % (os.environ.get('XDG_RUNTIME_DIR','~'),name))
 if os.path.exists(lock_file):
     #TODO verify if the PID in the file still exist
     print "Builder already running, exiting"
