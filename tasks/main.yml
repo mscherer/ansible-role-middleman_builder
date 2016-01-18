@@ -39,12 +39,12 @@
   register: result
 
 - git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}" update="no"
-  sudo: yes
-  sudo_user: '{{ builder_username }}'
+  become: yes
+  become_user: '{{ builder_username }}'
 
 - command: chdir="{{ checkout_dir }}" bundle install
-  sudo: yes
-  sudo_user: '{{ builder_username }}'
+  become: yes
+  become_user: '{{ builder_username }}'
 
 - set_fact:
       remote_url: ""
