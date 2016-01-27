@@ -114,15 +114,16 @@ if not args.config_file:
 
 config = load_config(args.config_file)
 
-if not 'name' in config:
+if 'name' not in config:
     print "Incorrect config file: {}".format(args.config_file)
     sys.exit(1)
 
 name = config['name']
 
-lock_file = os.path.expanduser('%s/lock_{}'.format(os.environ.get('XDG_RUNTIME_DIR', '~'), name))
+lock_file = os.path.expanduser('{}/lock_{}'.format(
+    os.environ.get('XDG_RUNTIME_DIR', '~'), name))
 if os.path.exists(lock_file):
-    #TODO verify if the PID in the file still exist
+    # TODO verify if the PID in the file still exist
     print "Builder already running, exiting"
     sys.exit(2)
 
@@ -148,8 +149,12 @@ refresh_checkout(checkout_dir)
 
 start_build = False
 
-last_build = datetime.datetime.fromtimestamp(int(status.get("last_build", "0")))
-if 'regular_rebuild_interval' in config and datetime.datetime.now() - last_build > datetime.timedelta(hours=config['regular_rebuild_interval']):
+last_build = datetime.datetime.fromtimestamp(
+    int(status.get("last_build", "0")))
+
+if ('regular_rebuild_interval' in config
+        and datetime.datetime.now() - last_build
+        > datetime.timedelta(hours=config['regular_rebuild_interval'])):
     start_build = True
 
 current_commit = get_last_commit(checkout_dir)
@@ -160,7 +165,8 @@ submodule_commits = status.get('submodule_commits', {})
 current_submodule_commits = {}
 for submodule in get_submodules_checkout(checkout_dir):
     debug_print('Looking for %s' % submodule)
-    current_submodule_commits[submodule] = get_last_commit_submodule(checkout_dir, submodule)
+    current_submodule_commits[submodule] = \
+        get_last_commit_submodule(checkout_dir, submodule)
 
     if current_submodule_commits[submodule] != submodule_commits.get(submodule, ''):
         start_build = True
