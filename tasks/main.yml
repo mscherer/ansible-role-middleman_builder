@@ -27,9 +27,6 @@
 
 - copy: dest=/usr/local/bin/build_deploy.py src=build_deploy.py mode=755 owner=root group=root
 
-# needed so NRPE can check log
-- file: path="/srv/builder" mode=755 state=directory
-
 - user:
    name="{{ builder_username }}"
    comment="Middleman builder user"
@@ -37,6 +34,10 @@
    home="/srv/builder"
    ssh_key_file="/srv/builder/.ssh/{{ name }}_id.rsa"
   register: result
+
+# needed so NRPE can check log
+- file: path="/srv/builder" mode=755 state=directory
+
 
 - git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}" update="no"
   become: yes
