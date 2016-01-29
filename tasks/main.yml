@@ -16,6 +16,7 @@
   - patch
 # nokogiri also requires zlib-devel to build libxml
   - zlib-devel
+  - PyYAML
 
 - name: install packages
   action: "{{ ansible_pkg_mgr }} pkg={{ item }} state=installed"
