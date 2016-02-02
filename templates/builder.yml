@@ -10,6 +10,7 @@ notification:
     nick: {{ irc_nick }}
 {% endif %}
   mail:
+    sender: {{ mail_sender }}
     watchers:
     {% for w in watchers %}
     - {{ w }}
