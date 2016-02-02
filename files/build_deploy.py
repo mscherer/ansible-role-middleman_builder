@@ -109,7 +109,7 @@ def notify_error(stage, error):
     print error
     if 'notification' in config:
         if 'mail' in config['notification']:
-            for w in config['notification'].get('watchers',[]):
+            for w in config['notification']['mail'].get('watchers',[]):
                 send_email(w, "Build failed at step {}".format(stage), error)
 
         if 'irc' in config['notification']:
@@ -118,7 +118,7 @@ def notify_error(stage, error):
     sys.exit(3)
 
 def send_email(recipient, subject, message):
-    sender = config['notification']['sender']
+    sender = config['notification']['mail']['sender']
     msg = MIMEText(message)
     msg['Subject'] = subject
     msg['From'] = sender
