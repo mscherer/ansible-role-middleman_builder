@@ -32,7 +32,8 @@ import datetime
 import atexit
 import syslog
 import argparse
-
+import smtplib
+from email.mime.text import MIMEText
 
 parser = argparse.ArgumentParser(description="Build middleman sites based "
                                              "on changes in git")
@@ -104,9 +105,30 @@ def has_submodules(checkout_dir):
 
 # TODO complete that
 def notify_error(stage, error):
+    # for syslog related reason
     print error
+    if 'notification' in config:
+        if 'mail' in config['notification']:
+            for w in config['notification'].get('watchers',[]):
+                send_email(w, "Build failed at step {}".format(stage), error)
+
+        if 'irc' in config['notification']:
+            #TODO
+            pass
     sys.exit(3)
 
+def send_email(recipient, subject, message):
+    sender = config['notification']['sender']
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = recipient
+
+    # Send the message via our own SMTP server, but don't include the
+    # envelope header.
+    s = smtplib.SMTP('localhost')
+    s.sendmail(sender, [recipient], msg)
+    s.quit()
 
 if not args.config_file:
     print "This script take only 1 single argument, the config file"
