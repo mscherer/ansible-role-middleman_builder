@@ -32,7 +32,6 @@ import datetime
 import atexit
 import syslog
 import argparse
-import smtplib
 from email.mime.text import MIMEText
 
 parser = argparse.ArgumentParser(description="Build middleman sites based "
@@ -123,12 +122,10 @@ def send_email(recipient, subject, message):
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = recipient
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-    s = smtplib.SMTP('localhost')
-    s.sendmail(sender, [recipient], msg)
-    s.quit()
+    if 'sendmail' in config['notification']['mail']:
+        sendmail = config['notification']['mail']['sendmail']
+        p = subprocess.Popen([sendmail, "-t", "-oi"], stdin=subprocess.PIPE)
+        p.communicate(msg.as_string())
 
 if not args.config_file:
     print "This script take only 1 single argument, the config file"
