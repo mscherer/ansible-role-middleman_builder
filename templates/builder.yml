@@ -16,6 +16,6 @@ notification:
     {% endfor %}
     # unused for now
     email_commiter: False
-remote: {{ remote_url }}
+remote: {{ rsync_url }}
 # in hours
 regular_rebuild_interval: 6
