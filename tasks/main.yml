@@ -65,5 +65,5 @@
       key_options="command=\"rsync --server -vlogDtprze.isf --delete-after . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
       user="{{ rsync_user }}"
   delegate_to: "{{ rsync_server }}"
-  rsync_user: "{{ rsync_user }}"
+  remote_user: "{{ rsync_user }}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
