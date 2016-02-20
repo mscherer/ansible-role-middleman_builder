@@ -49,11 +49,11 @@
   become_user: '{{ builder_username }}'
 
 - set_fact:
-      remote_url: ""
+      rsync_url: ""
 
 - set_fact:
-      remote_url: "{{ remote_user }}@{{ remote_server }}:{{remote_location}}"
-  when: remote_server is defined and remote_location is defined and remote_user is defined
+      rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
+  when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
 - template: dest=/srv/builder/{{ name }}.yml src=builder.yml
 
@@ -62,8 +62,8 @@
 # TODO add ip restriction
 - authorized_key:
       key="{{ result.ssh_public_key }}"
-      key_options="command=\"rsync --server -vlogDtprze.isf --delete-after . {{ remote_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
-      user="{{ remote_user }}"
-  delegate_to: "{{ remote_server }}"
-  remote_user: "{{ remote_user }}"
-  when: remote_server is defined and remote_location is defined and remote_user is defined
+      key_options="command=\"rsync --server -vlogDtprze.isf --delete-after . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+      user="{{ rsync_user }}"
+  delegate_to: "{{ rsync_server }}"
+  rsync_user: "{{ rsync_user }}"
+  when: rsync_server is defined and rsync_location is defined and rsync_user is defined
