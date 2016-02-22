@@ -222,6 +222,7 @@ else:
 status = {}
 status['last_build_commit'] = current_commit
 status['last_build'] = datetime.datetime.now().strftime("%s")
+status['last_build_human'] = datetime.datetime.now().strftime("%c")
 status['submodule_commits'] = current_submodule_commits
 
 with open(status_file, 'w+') as f:
