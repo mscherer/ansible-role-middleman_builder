@@ -42,6 +42,8 @@ parser.add_argument("-n", "--dry-run", help="do not sync remotely",
                     action="store_true")
 parser.add_argument("-d", "--debug", help="show debug output",
                     action="store_true")
+parser.add_argument("-s", "--sync-only", help="do not build, only sync",
+                    action="store_true")
 parser.add_argument("config_file", help="yaml file for the builder config")
 
 args = parser.parse_args()
@@ -195,19 +197,20 @@ if config.get('update_submodule_head', False):
     subprocess.call(['git', 'submodule', 'foreach',
                      '"git pull -qf origin master"'])
 
-os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + os.environ['PATH']
-try:
-    syslog.syslog("Build of {}: bundle install".format(name))
-    result = subprocess.check_output(['bundle', 'install'])
-except subprocess.CalledProcessError, C:
-    notify_error('install', C.output)
+if not args.sync_only:
+    os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + os.environ['PATH']
+    try:
+        syslog.syslog("Build of {}: bundle install".format(name))
+        result = subprocess.check_output(['bundle', 'install'])
+    except subprocess.CalledProcessError, C:
+        notify_error('install', C.output)
 
-try:
-    syslog.syslog("Build of {}: bundle exec middleman build".format(name))
-    result = subprocess.check_output(['bundle', 'exec', 'middleman',
-                                      'build', '--verbose'])
-except subprocess.CalledProcessError, C:
-    notify_error('build', C.output)
+    try:
+        syslog.syslog("Build of {}: bundle exec middleman build".format(name))
+        result = subprocess.check_output(['bundle', 'exec', 'middleman',
+                                          'build', '--verbose'])
+    except subprocess.CalledProcessError, C:
+        notify_error('build', C.output)
 
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
