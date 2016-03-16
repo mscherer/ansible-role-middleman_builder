@@ -43,10 +43,12 @@
 - git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}" update="no"
   become: yes
   become_user: '{{ builder_username }}'
+  become_method: 'su'
 
 - command: chdir="{{ checkout_dir }}" bundle install
   become: yes
   become_user: '{{ builder_username }}'
+  become_method: 'su'
 
 - set_fact:
       rsync_url: ""
