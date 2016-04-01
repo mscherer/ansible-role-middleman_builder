@@ -19,3 +19,4 @@ notification:
 remote: {{ rsync_url }}
 # in hours
 regular_rebuild_interval: 6
+force_checkout: True
