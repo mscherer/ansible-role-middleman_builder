@@ -185,7 +185,8 @@ syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
 if config.get('force_checkout', False):
-    subprocess.call(['git', 'checkout', '-f'])
+    subprocess.call(['git', 'fetch'])
+    subprocess.call(['git', 'checkout', '-f', 'origin/master'])
 else:
     subprocess.call(['git', 'pull', '--rebase'])
 
