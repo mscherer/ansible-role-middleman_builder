@@ -184,11 +184,9 @@ if not start_build:
 syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
-if config.get('force_checkout', False):
-    subprocess.call(['git', 'fetch'])
-    subprocess.call(['git', 'checkout', '-f', 'origin/master'])
-else:
-    subprocess.call(['git', 'pull', '--rebase'])
+subprocess.call(['git', 'stash'])
+subprocess.call(['git', 'stash', 'clear'])
+subprocess.call(['git', 'pull', '--rebase'])
 
 if has_submodules(checkout_dir):
     subprocess.call(['git', 'submodule', 'init'])
