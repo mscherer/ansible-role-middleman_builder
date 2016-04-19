@@ -54,6 +54,7 @@
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
+  changed_when: False
 
 - set_fact:
       rsync_url: ""
