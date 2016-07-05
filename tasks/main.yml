@@ -19,38 +19,54 @@
   - PyYAML
 
 - name: Install more packages for Fedora
-  package: name={{ item }} state=present
+  package:
+    name: "{{ item }}"
+    state: present
   with_items:
   - redhat-rpm-config
   when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23'
 
-- set_fact: checkout_dir="/srv/builder/{{ name }}"
+- set_fact:
+    checkout_dir: "/srv/builder/{{ name }}"
 
 - name: Deploy the build script
-  copy: dest=/usr/local/bin/build_deploy.py src=build_deploy.py mode=755 owner=root group=root
+  copy:
+    dest: /usr/local/bin/build_deploy.py
+    src: build_deploy.py
+    mode: 755
+    owner: root
+    group: root
 
 - name: Create {{ builder_username }} to build
   user:
-   name="{{ builder_username }}"
-   comment="Middleman builder user"
-   generate_ssh_key=yes
-   home="/srv/builder"
-   ssh_key_file="/srv/builder/.ssh/{{ name }}_id.rsa"
+    name: "{{ builder_username }}"
+    comment: "Middleman builder user"
+    generate_ssh_key: yes
+    home: "/srv/builder"
+    ssh_key_file: "/srv/builder/.ssh/{{ name }}_id.rsa"
   register: result
 
 # needed so NRPE can check log
 - name: Fix directory permission for NRPE
-  file: path="/srv/builder" mode=755 state=directory
-
+  file:
+    path: "/srv/builder"
+    mode: 755
+    state: directory
 
 - name: Clone git repo {{ git_url }}
-  git: repo="{{ git_url }}" dest="{{ checkout_dir }}" version="{{ git_version | default( "HEAD" ) }}" update="no"
+  git:
+    repo: "{{ git_url }}"
+    dest: "{{ checkout_dir }}"
+    version: "{{ git_version | default( 'HEAD' ) }}"
+    update: "no"
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
 
 - name: Install gems required to build
-  command: chdir="{{ checkout_dir }}" bundle install
+  command: bundle install
+  args:
+    chdir: "{{ checkout_dir }}"
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
@@ -64,17 +80,22 @@
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
 - name: Deploy yaml config for {{ name }}
-  template: dest=/srv/builder/{{ name }}.yml src=builder.yml
+  template:
+    dest: "/srv/builder/{{ name }}.yml"
+    src: builder.yml
 
 - name: Add cron to build {{ name }}
-  cron: name="build and deploy {{ name }}" job="/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml" user="{{ builder_username }}"
+  cron:
+    name: "build and deploy {{ name }}"
+    job: "/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml"
+    user: "{{ builder_username }}"
 
 # TODO add ip restriction
 - name: Copy the key on the other side
   authorized_key:
-      key="{{ result.ssh_public_key }}"
-      key_options="command=\"rsync --server -vlogDtprze.isf --delete-after . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
-      user="{{ rsync_user }}"
+      key: "{{ result.ssh_public_key }}"
+      key_options: "command=\"rsync --server -vlogDtprze.isf --delete-after . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+      user: "{{ rsync_user }}"
   delegate_to: "{{ rsync_server }}"
   remote_user: "{{ rsync_user }}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
