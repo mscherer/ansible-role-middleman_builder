@@ -46,7 +46,8 @@ push to openshift, with £NAME replaced by the name given to the role.
 # Regular rebuild
 
 The role will rebuild the website on a regular basis, every 6h 
-by default. This is not yet a option that can be changed.
+by default. This can be changed with the parameter `rebuild_interval`, which express
+the time between automated rebuild attempts if nothing changed, expressed in hours.
 
 # Debug the build
 

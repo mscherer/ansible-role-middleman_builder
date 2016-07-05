@@ -17,5 +17,7 @@ notification:
     # unused for now
     email_commiter: False
 remote: {{ rsync_url }}
+{% if rebuild_interval is defined %}
 # in hours
-regular_rebuild_interval: 6
+regular_rebuild_interval: {{ rebuild_interval }}
+{% endif %}

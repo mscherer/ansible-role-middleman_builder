@@ -4,3 +4,5 @@ builder_username: middleman_builder
 update_submodules: True
 watchers:  []
 irc_server: False
+# in hours
+rebuild_interval: 6
