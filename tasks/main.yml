@@ -33,7 +33,7 @@
   copy:
     dest: /usr/local/bin/build_deploy.py
     src: build_deploy.py
-    mode: 755
+    mode: 0755
     owner: root
     group: root
 
@@ -50,7 +50,7 @@
 - name: Fix directory permission for NRPE
   file:
     path: "/srv/builder"
-    mode: 755
+    mode: 0755
     state: directory
 
 - name: Clone git repo {{ git_url }}
