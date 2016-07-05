@@ -197,7 +197,8 @@ if config.get('update_submodule_head', False):
                      '"git pull -qf origin master"'])
 
 if not args.sync_only:
-    os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + os.environ['PATH']
+    os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + \
+                         os.environ['PATH']
     try:
         syslog.syslog("Build of {}: bundle install".format(name))
         result = subprocess.check_output(['bundle', 'install'])
