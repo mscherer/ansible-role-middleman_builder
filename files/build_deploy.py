@@ -49,6 +49,13 @@ parser.add_argument("config_file", help="yaml file for the builder config")
 args = parser.parse_args()
 
 
+builder_commands = {
+    'middleman': {
+        'build': ['bundle', 'exec', 'middleman' 'build', '--verbose']
+    }
+}
+
+
 def debug_print(message):
     if args.debug:
         print message
@@ -206,9 +213,9 @@ if not args.sync_only:
         notify_error('install', C.output)
 
     try:
-        syslog.syslog("Build of {}: bundle exec middleman build".format(name))
-        result = subprocess.check_output(['bundle', 'exec', 'middleman',
-                                          'build', '--verbose'])
+        command = builder_commands[config['builder']]
+        syslog.syslog("Build of {}: {}".format(name, ' '.join(command)))
+        result = subprocess.check_output(command)
     except subprocess.CalledProcessError, C:
         notify_error('build', C.output)
 

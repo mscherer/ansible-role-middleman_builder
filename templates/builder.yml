@@ -1,4 +1,5 @@
 name: {{ name }}
+builder: 'middleman'
 notification:
 {% if irc_server %}
   irc:
