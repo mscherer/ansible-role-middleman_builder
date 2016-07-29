@@ -1,22 +1,13 @@
 ---
+
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+
 - name: Install packages
   package: name={{ item }} state=present
-  with_items:
-  - rubygem-bundler
-  - ruby-devel
-  - curl-devel
-  - git
-  - make
-  - gcc
-  - gcc-c++
-  - ImageMagick
-# used to send email about build broken
-  - mutt
-# nokogiri build requires patch
-  - patch
-# nokogiri also requires zlib-devel to build libxml
-  - zlib-devel
-  - PyYAML
+  with_items: "{{ package_list }}"
 
 - name: Install more packages for Fedora
   package:
@@ -64,7 +55,7 @@
   become_method: 'su'
 
 - name: Install gems required to build
-  command: bundle install
+  command: "bundle install --path ~/.gem"
   args:
     chdir: "{{ checkout_dir }}"
   become: yes

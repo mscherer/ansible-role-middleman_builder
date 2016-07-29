@@ -1,0 +1,18 @@
+---
+package_list:
+  - rubygem-bundler
+  - ruby-devel
+  - curl-devel
+  - git
+  - make
+  - gcc
+  - gcc-c++
+  - ImageMagick
+# used to send email about build broken
+  - mutt
+# nokogiri build requires patch
+  - patch
+# nokogiri also requires zlib-devel to build libxml
+  - zlib-devel
+  - PyYAML
+
