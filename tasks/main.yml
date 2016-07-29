@@ -40,7 +40,7 @@
 - name: Create {{ builder_username }} to build
   user:
     name: "{{ builder_username }}"
-    comment: "Middleman builder user"
+    comment: "Static builder user"
     generate_ssh_key: yes
     home: "/srv/builder"
     ssh_key_file: "/srv/builder/.ssh/{{ name }}_id.rsa"
