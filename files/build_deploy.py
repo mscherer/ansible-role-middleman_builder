@@ -186,6 +186,7 @@ syslog.syslog("Start the build of {}".format(name))
 os.chdir(checkout_dir)
 subprocess.call(['git', 'stash'])
 subprocess.call(['git', 'stash', 'clear'])
+subprocess.call(['git', 'remote', 'prune', 'origin'])
 subprocess.call(['git', 'pull', '--rebase'])
 
 if has_submodules(checkout_dir):
