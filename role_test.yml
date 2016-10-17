@@ -1,0 +1,7 @@
+---
+- hosts: 127.0.0.1
+  remote_user: root
+  roles:
+  - role: <ROLE_NAME>
+    name: testvhost
+    git_url: https://github.com/OSAS/middleman-springboard.git

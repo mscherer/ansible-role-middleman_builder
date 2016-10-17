@@ -1,0 +1,51 @@
+language: none
+
+
+build:
+  pre_ci_boot:
+    image_name: ansible/ansible
+    image_tag: centos7
+    pull: true
+    # we need a terminal or certain libc functions will fail
+    options: "-ti"
+  ci:
+    # debug info
+    - id
+    - export
+# prepare the tools
+    # this image is very bare and we need cron installed to test this role
+    - yum -y install cronie crontabs
+    # the Ansible package version is far too old (1.5.4)
+    - yum -y install python-pip python-devel libffi-devel openssl-devel make gcc gcc-c++ screen
+    - pip install ansible
+    # TEMP: fix a bug using the cron module affecting stable
+    - pip install --upgrade http://releases.ansible.com/ansible/ansible-2.2.0.0-0.2.rc2.tar.gz
+    # check the installed version
+    - ansible --version
+    # ansible-lint is not packaged
+    - pip install ansible-lint
+    - pip install flake8
+# verify the syntax of the playbook
+    - ansible-lint tasks/main.yml
+# verify python script with pyflakes and pep8
+    - set -e ; for i in files/*.py; do flake8 $i ;done
+# setup the environment to run ansible
+    - sed -i "s/<ROLE_NAME>/${SHIPPABLE_BUILD_DIR/*\//}/g" role_test.yml
+    - echo -e "[defaults]\nroles_path = ../\n" > ansible.cfg
+# run a syntax check
+    - ansible-playbook -i '127.0.0.1,' --syntax-check role_test.yml
+# check that the role can be run
+    - ansible-playbook -i '127.0.0.1,' -c local -vvvv role_test.yml
+# verify idempotence ( ie, running a 2nd time shouldn't change anything )
+    - ansible-playbook -i '127.0.0.1,' -c local -vvvv role_test.yml | grep -q 'changed=0.*failed=0'
+
+
+integrations:
+  notifications:
+    - integrationName: email
+      type: email
+      on_success: never
+      on_failure: never
+      on_start: never
+      on_pull_request: never
+
