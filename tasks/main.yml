@@ -101,7 +101,7 @@
   set_fact:
     remote_user: "{{ rsync_user }}"
     remote_host: "{{ rsync_server }}"
-  when: rsync_url
+  when: rsync_url != ''
 
 - name: Compute SSH config for openshift sync
   block:
@@ -117,7 +117,7 @@
         # seen pattern: <user>@<host> or ssh://<user>@<host>/<path>
         remote_user: "{{ site.openshift | regex_replace('^.*?([^/]+)@.*$', '\\1') }}"
         remote_host: "{{ site.openshift | regex_replace('^.*@([^/]+).*$', '\\1') }}"
-  when: not rsync_url
+  when: rsync_url == ''
 
 - name: Create SSH config
   blockinfile:
