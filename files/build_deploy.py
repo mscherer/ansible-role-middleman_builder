@@ -126,7 +126,7 @@ lock_file = os.path.expanduser('{}/lock_{}'.format(
     os.environ.get('XDG_RUNTIME_DIR', '~'), name))
 if os.path.exists(lock_file):
     # TODO verify if the PID in the file still exist
-    print "Builder already running, exiting"
+    debug_print("Builder already running, exiting")
     sys.exit(2)
 
 # TODO try/except, show a better error message
