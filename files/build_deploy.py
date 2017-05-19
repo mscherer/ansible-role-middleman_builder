@@ -49,6 +49,19 @@ parser.add_argument("config_file", help="yaml file for the builder config")
 args = parser.parse_args()
 
 
+builder_info = {
+    'middleman': {
+        'build_command': ['bundle', 'exec', 'middleman', 'build', '--verbose'],
+        'build_subdir': 'build',
+        'deploy_command': ['bundle', 'exec', 'middleman', 'deploy']
+    },
+    'jekyll': {
+        'build_command': ['bundle', 'exec', 'jekyll', 'build', '--incremental', '--verbose', '--trace'],
+        'build_subdir': '_site',
+        'deploy_command': None
+    }
+}
+
 def debug_print(message):
     if args.debug:
         print message
@@ -206,9 +219,9 @@ if not args.sync_only:
         notify_error('install', C.output)
 
     try:
-        syslog.syslog("Build of {}: bundle exec middleman build".format(name))
-        result = subprocess.check_output(['bundle', 'exec', 'middleman',
-                                          'build', '--verbose'])
+        command = builder_info[config['builder']]['build_command']
+        syslog.syslog("Build of {}: {}".format(name, ' '.join(command)))
+        result = subprocess.check_output(command)
     except subprocess.CalledProcessError, C:
         notify_error('build', C.output)
 
@@ -216,6 +229,7 @@ if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
     # TODO log the message
     if config['remote']:
+        build_subdir = builder_info[config['builder']]['build_subdir']
         subprocess.call(['rsync',
                          '-e',
                          'ssh '
@@ -227,9 +241,14 @@ if not args.dry_run:
                          os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
                          '--delete-after',
                          '-rqavz',
-                         '%s/build/' % checkout_dir, config['remote']])
+                         '%s/%s/' % (checkout_dir, build_subdir),
+                         config['remote']])
     else:
-        subprocess.call(['bundle', 'exec', 'middleman', 'deploy'])
+        command = builder_info[config['builder']]['deploy_command']
+        if command:
+            subprocess.call(command)
+        else:
+            notify_error('deploy', "builder '%s' does not possess a deploy method" % config['builder'])
     syslog.syslog("Build of {}: finish sync".format(name))
 else:
     syslog.syslog("Build of {}: not syncing, dry-run".format(name))

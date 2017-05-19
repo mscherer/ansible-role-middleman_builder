@@ -1,4 +1,5 @@
 name: {{ name }}
+builder: {{ builder }}
 notification:
 {% if irc_server %}
   irc:
