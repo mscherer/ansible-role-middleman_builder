@@ -69,7 +69,8 @@ def debug_print(message):
 
 def refresh_checkout(checkout_dir):
     os.chdir(checkout_dir)
-    subprocess.call(['git', 'fetch', '-q'])
+    result = subprocess.check_output(['git', 'fetch', '-q'], stderr=subprocess.STDOUT)
+    debug_print(result)
 
 
 def get_last_commit(checkout_dir):
@@ -197,58 +198,71 @@ if not start_build:
 syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
-subprocess.call(['git', 'stash'])
-subprocess.call(['git', 'stash', 'clear'])
-subprocess.call(['git', 'pull', '--rebase'])
+result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
+debug_print(result)
+result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
+debug_print(result)
+result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
+debug_print(result)
 
 if has_submodules(checkout_dir):
-    subprocess.call(['git', 'submodule', 'init'])
-    subprocess.call(['git', 'submodule', 'sync'])
+    result = subprocess.check_output(['git', 'submodule', 'init'], stderr=subprocess.STDOUT)
+    debug_print(result)
+    result = subprocess.check_output(['git', 'submodule', 'sync'], stderr=subprocess.STDOUT)
+    debug_print(result)
 
 if config.get('update_submodule_head', False):
-    subprocess.call(['git', 'submodule', 'foreach',
-                     '"git pull -qf origin master"'])
+    result = subprocess.check_output(['git', 'submodule', 'foreach',
+                     '"git pull -qf origin master"'], stderr=subprocess.STDOUT)
+    debug_print(result)
 
 if not args.sync_only:
     os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + \
                          os.environ['PATH']
     try:
         syslog.syslog("Build of {}: bundle install".format(name))
-        result = subprocess.check_output(['bundle', 'install'])
+        result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
+        debug_print(result)
     except subprocess.CalledProcessError, C:
         notify_error('install', C.output)
 
     try:
         command = builder_info[config['builder']]['build_command']
         syslog.syslog("Build of {}: {}".format(name, ' '.join(command)))
-        result = subprocess.check_output(command)
+        result = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        debug_print(result)
     except subprocess.CalledProcessError, C:
         notify_error('build', C.output)
 
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
-    # TODO log the message
-    if config['remote']:
-        build_subdir = builder_info[config['builder']]['build_subdir']
-        subprocess.call(['rsync',
-                         '-e',
-                         'ssh '
-                         '-o '
-                         'UserKnownHostsFile=/dev/null '
-                         '-o '
-                         'StrictHostKeyChecking=no '
-                         '-i ' +
-                         os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
-                         '--delete-after',
-                         '-rqavz',
-                         '%s/%s/' % (checkout_dir, build_subdir),
-                         config['remote']])
-    else:
-        command = builder_info[config['builder']]['deploy_command']
-        if command:
-            subprocess.call(command)
+    try:
+        if config['remote']:
+            build_subdir = builder_info[config['builder']]['build_subdir']
+            result = subprocess.check_output(
+                            ['rsync',
+                             '-e',
+                             'ssh '
+                             '-o '
+                             'UserKnownHostsFile=/dev/null '
+                             '-o '
+                             'StrictHostKeyChecking=no '
+                             '-i ' +
+                             os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
+                             '--delete-after',
+                             '-rqavz',
+                             '%s/%s/' % (checkout_dir, build_subdir),
+                             config['remote']],
+                             stderr=subprocess.STDOUT)
         else:
-            notify_error('deploy', "builder '%s' does not possess a deploy method" % config['builder'])
+            command = builder_info[config['builder']]['deploy_command']
+            if command:
+                result = subprocess.check_output(command)
+            else:
+                notify_error('deploy', "builder '%s' does not possess a deploy method" % config['builder'])
+        debug_print(result)
+    except subprocess.CalledProcessError, C:
+        notify_error('deploy', C.output)
     syslog.syslog("Build of {}: finish sync".format(name))
 else:
     syslog.syslog("Build of {}: not syncing, dry-run".format(name))
