@@ -32,6 +32,7 @@ import datetime
 import atexit
 import syslog
 import argparse
+import shutil
 
 
 parser = argparse.ArgumentParser(description="Build middleman sites based "
@@ -62,9 +63,21 @@ builder_info = {
     }
 }
 
+
+def log_print(message):
+    try:
+        log_fd
+    except NameError:
+        pass
+    else:
+        log_fd.write(message + "\n")
+        log_fd.flush()
+
+
 def debug_print(message):
     if args.debug:
         print message
+    log_print(message)
 
 
 def refresh_checkout(checkout_dir):
@@ -195,6 +208,15 @@ if not start_build:
     debug_print("Nothing to build")
     sys.exit(0)
 
+# Do not open earlier or we would end-up logging a lot of
+# "Nothing to build" messages and lose the last build log.
+log_file = os.path.expanduser('~/%s.log' % name)
+log_fd = open(log_file, "w")
+log_fd.write("last_build_date: {}\n".format(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S (UTC)")))
+log_fd.write("last_build_commit: {}\n".format(current_commit))
+log_fd.write("submodule_commits: {}\n".format(current_submodule_commits))
+log_fd.write("\n")
+
 syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
@@ -216,6 +238,9 @@ if config.get('update_submodule_head', False):
                      '"git pull -qf origin master"'], stderr=subprocess.STDOUT)
     debug_print(result)
 
+build_subdir = builder_info[config['builder']]['build_subdir']
+build_dir = '%s/%s' % (checkout_dir, build_subdir)
+
 if not args.sync_only:
     os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + \
                          os.environ['PATH']
@@ -224,6 +249,8 @@ if not args.sync_only:
         result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
         debug_print(result)
     except subprocess.CalledProcessError, C:
+        log_print(C.output)
+        # TODO: find a way to publish the log on the website (as the sync step will never occur)
         notify_error('install', C.output)
 
     try:
@@ -232,13 +259,18 @@ if not args.sync_only:
         result = subprocess.check_output(command, stderr=subprocess.STDOUT)
         debug_print(result)
     except subprocess.CalledProcessError, C:
+        log_print(C.output)
+        # TODO: find a way to publish the log on the website (as the sync step will never occur)
         notify_error('build', C.output)
+
+    # copy log in build dir to make it available to users
+    # Using a .txt extension to ensure webservers will allow access to it
+    shutil.copy2(log_file, '%s/build_log.txt' % build_dir)
 
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
     try:
         if config['remote']:
-            build_subdir = builder_info[config['builder']]['build_subdir']
             result = subprocess.check_output(
                             ['rsync',
                              '-e',
@@ -252,7 +284,7 @@ if not args.dry_run:
                              '--delete-after',
                              '-rltogvz',
                              '--omit-dir-times',
-                             '%s/%s/' % (checkout_dir, build_subdir),
+                             '%s/' % build_dir,
                              config['remote']],
                              stderr=subprocess.STDOUT)
         else:
