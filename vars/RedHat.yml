@@ -1,4 +1,5 @@
 ---
+rsync_package: rsync
 package_list:
   - rubygem-bundler
   - ruby-devel

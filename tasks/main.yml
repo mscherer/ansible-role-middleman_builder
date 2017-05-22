@@ -97,6 +97,13 @@
   remote_user: "{{ rsync_user }}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
+- name: Install Rsync on the other side
+  package:
+    name: "{{ rsync_package }}"
+    state: present
+  delegate_to: "{{ rsync_server }}"
+  when: rsync_url != ''
+
 - name: Compute SSH config for rsync sync
   set_fact:
     remote_user: "{{ rsync_user }}"

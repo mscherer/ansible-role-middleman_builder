@@ -1,4 +1,5 @@
 ---
+rsync_package: rsync
 package_list:
   - ruby-bundler
   - ruby-dev
