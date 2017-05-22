@@ -250,7 +250,8 @@ if not args.dry_run:
                              '-i ' +
                              os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
                              '--delete-after',
-                             '-rqavz',
+                             '-rltogvz',
+                             '--omit-dir-times',
                              '%s/%s/' % (checkout_dir, build_subdir),
                              config['remote']],
                              stderr=subprocess.STDOUT)
