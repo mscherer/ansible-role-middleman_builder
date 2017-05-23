@@ -136,6 +136,25 @@ def notify_error(stage, error):
     print error
     sys.exit(3)
 
+def do_rsync(source):
+    return subprocess.check_output(
+               ['rsync',
+                '-e',
+                'ssh '
+                '-o '
+                'UserKnownHostsFile=/dev/null '
+                '-o '
+                'StrictHostKeyChecking=no '
+                '-i ' +
+                os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
+                '--delete-after',
+                '-rltogvz',
+                '--omit-dir-times',
+                source,
+                config['remote']],
+                stderr=subprocess.STDOUT)
+
+
 
 if not args.config_file:
     print "This script take only 1 single argument, the config file"
@@ -241,6 +260,9 @@ if config.get('update_submodule_head', False):
 build_subdir = builder_info[config['builder']]['build_subdir']
 build_dir = '%s/%s' % (checkout_dir, build_subdir)
 
+# Using a .txt extension to ensure webservers will allow access to it
+sync_log_path = '%s/build_log.txt' % build_dir
+
 if not args.sync_only:
     os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + \
                          os.environ['PATH']
@@ -250,7 +272,13 @@ if not args.sync_only:
         debug_print(result)
     except subprocess.CalledProcessError, C:
         log_print(C.output)
-        # TODO: find a way to publish the log on the website (as the sync step will never occur)
+        if config['remote']:
+            # copy log in build dir and sync it to make it available to users
+            shutil.copy2(log_file, sync_log_path)
+            try:
+                do_rsync(sync_log_path)
+            except subprocess.CalledProcessError, C:
+                pass
         notify_error('install', C.output)
 
     try:
@@ -260,33 +288,23 @@ if not args.sync_only:
         debug_print(result)
     except subprocess.CalledProcessError, C:
         log_print(C.output)
-        # TODO: find a way to publish the log on the website (as the sync step will never occur)
+        if config['remote']:
+            # copy log in build dir and sync it to make it available to users
+            shutil.copy2(log_file, sync_log_path)
+            try:
+                do_rsync(sync_log_path)
+            except subprocess.CalledProcessError, C:
+                pass
         notify_error('build', C.output)
 
-    # copy log in build dir to make it available to users
-    # Using a .txt extension to ensure webservers will allow access to it
-    shutil.copy2(log_file, '%s/build_log.txt' % build_dir)
+    # copy log in build dir to make it available to users (in the site sync later)
+    shutil.copy2(log_file, sync_log_path)
 
 if not args.dry_run:
     syslog.syslog("Build of {}: start sync".format(name))
     try:
         if config['remote']:
-            result = subprocess.check_output(
-                            ['rsync',
-                             '-e',
-                             'ssh '
-                             '-o '
-                             'UserKnownHostsFile=/dev/null '
-                             '-o '
-                             'StrictHostKeyChecking=no '
-                             '-i ' +
-                             os.path.expanduser('~/.ssh/{}_id.rsa'.format(name)),
-                             '--delete-after',
-                             '-rltogvz',
-                             '--omit-dir-times',
-                             '%s/' % build_dir,
-                             config['remote']],
-                             stderr=subprocess.STDOUT)
+            result = do_rsync('%s/' % build_dir)
         else:
             command = builder_info[config['builder']]['deploy_command']
             if command:
