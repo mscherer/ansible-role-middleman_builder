@@ -53,7 +53,7 @@ builder_info = {
     'middleman': {
         'build_command': ['bundle', 'exec', 'middleman', 'build', '--verbose'],
         'build_subdir': 'build',
-        'deploy_command': ['bundle', 'exec', 'middleman', 'deploy']
+        'deploy_command': ['bundle', 'exec', 'middleman', 'deploy', '--no-build-before']
     },
     'jekyll': {
         'build_command': ['bundle', 'exec', 'jekyll', 'build', '--incremental', '--verbose', '--trace'],
