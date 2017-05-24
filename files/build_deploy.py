@@ -82,28 +82,40 @@ def debug_print(message):
 
 def refresh_checkout(checkout_dir):
     os.chdir(checkout_dir)
-    result = subprocess.check_output(['git', 'fetch', '-q'], stderr=subprocess.STDOUT)
+    try:
+        result = subprocess.check_output(['git', 'fetch', '-q'], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
     debug_print(result)
 
 
 def get_last_commit(checkout_dir):
     os.chdir(checkout_dir)
-    r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
-                                 'refs/remotes/origin/HEAD'])
+    try:
+        r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
+                                     'refs/remotes/origin/HEAD'])
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
     return r.split()[0]
 
 
 def get_last_commit_submodule(checkout_dir, submodule):
     os.chdir("{}/{}/".format(checkout_dir, submodule))
-    r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
-                                 'refs/remotes/origin/HEAD'])
+    try:
+        r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
+                                     'refs/remotes/origin/HEAD'])
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
     return r.split()[0]
 
 
 def get_submodules_checkout(checkout_dir):
     os.chdir(checkout_dir)
     result = []
-    submodule_status = subprocess.check_output(['git', 'submodule', 'status'])
+    try:
+       submodule_status = subprocess.check_output(['git', 'submodule', 'status'])
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
     for s in submodule_status.split('\n'):
         # there is a empty line at the end...
         if s:
@@ -127,7 +139,10 @@ def load_config(config_file):
 
 def has_submodules(checkout_dir):
     os.chdir(checkout_dir)
-    r = subprocess.check_output(['git', 'submodule', 'status'])
+    try:
+        r = subprocess.check_output(['git', 'submodule', 'status'])
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
     return len(r) > 0
 
 
@@ -137,7 +152,8 @@ def notify_error(stage, error):
     sys.exit(3)
 
 def do_rsync(source):
-    return subprocess.check_output(
+    try:
+        r = subprocess.check_output(
                ['rsync',
                 '-e',
                 'ssh '
@@ -153,6 +169,9 @@ def do_rsync(source):
                 source,
                 config['remote']],
                 stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
+    return r
 
 
 
@@ -239,23 +258,32 @@ log_fd.write("\n")
 syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
-result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
-debug_print(result)
-result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
-debug_print(result)
-result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
-debug_print(result)
+try:
+    result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
+    debug_print(result)
+    result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
+    debug_print(result)
+    result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
+    debug_print(result)
+except subprocess.CalledProcessError, C:
+    notify_error('setup', C.output)
 
 if has_submodules(checkout_dir):
-    result = subprocess.check_output(['git', 'submodule', 'init'], stderr=subprocess.STDOUT)
-    debug_print(result)
-    result = subprocess.check_output(['git', 'submodule', 'sync'], stderr=subprocess.STDOUT)
-    debug_print(result)
+    try:
+        result = subprocess.check_output(['git', 'submodule', 'init'], stderr=subprocess.STDOUT)
+        debug_print(result)
+        result = subprocess.check_output(['git', 'submodule', 'sync'], stderr=subprocess.STDOUT)
+        debug_print(result)
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
 
 if config.get('update_submodule_head', False):
-    result = subprocess.check_output(['git', 'submodule', 'foreach',
-                     '"git pull -qf origin master"'], stderr=subprocess.STDOUT)
-    debug_print(result)
+    try:
+        result = subprocess.check_output(['git', 'submodule', 'foreach',
+                         '"git pull -qf origin master"'], stderr=subprocess.STDOUT)
+        debug_print(result)
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
 
 build_subdir = builder_info[config['builder']]['build_subdir']
 build_dir = '%s/%s' % (checkout_dir, build_subdir)
