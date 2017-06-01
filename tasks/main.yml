@@ -81,6 +81,13 @@
     job: "/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml"
     user: "{{ builder_username }}"
 
+- name: Setup cron email
+  cronvar:
+    user: "{{ builder_username }}"
+    name: MAILTO
+    value: "{{ cron_error_email }}"
+  when: cron_error_email is defined
+
 # TODO add ip restriction
 - name: Copy the key on the other side
   authorized_key:

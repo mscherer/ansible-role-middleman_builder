@@ -23,7 +23,10 @@ This will deploy the build of https://git.example.org/website.git by
 using rsync as rsync_user on www.example.org, copying in /var/www/html.
 
 The script will not sync if build failed, and will not send email (that's on the 
-TODO list, see end of the file)
+TODO list, see end of the file). Nevertheless, failures caught by Cron can be
+sent to an email address if specified by `cron_error_email`; if you setup
+multiple builders using the same UNIX user, then beware only the latest email
+defined will be taken into account.
 
 # Handling multiple repositories
 
