@@ -1,6 +1,7 @@
 ---
 
-- include_vars: "{{ item }}"
+- name: Load settings based on distribution
+  include_vars: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
@@ -17,7 +18,8 @@
   - redhat-rpm-config
   when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23'
 
-- set_fact:
+- name: Define checkout directory
+  set_fact:
     checkout_dir: "/srv/builder/{{ name }}"
 
 - name: Deploy the build script
@@ -62,10 +64,12 @@
   become_method: 'su'
   changed_when: False
 
-- set_fact:
+- name: Clear RSYNC URL
+  set_fact:
       rsync_url: ""
 
-- set_fact:
+- name: Compute RSYNC URL
+  set_fact:
       rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
