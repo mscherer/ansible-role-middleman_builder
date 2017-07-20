@@ -105,12 +105,16 @@
   remote_user: "{{ rsync_user }}"
   when: rsync_url != ''
 
-- name: Install Rsync on the other side
-  package:
-    name: "{{ rsync_package }}"
-    state: present
-  delegate_to: "{{ rsync_server }}"
-  when: rsync_url != ''
+# Unfortunately recently fails with:
+#   fatal: [osci-web-builder.osci.io -> 8.43.85.237]: FAILED! => {"changed": false, "failed": true, "msg": "Could not detect which package manager to use. Try gathering facts or setting the \"use\" option."}
+# It most probably is an Ansible regression, investigating…
+#
+#- name: Install Rsync on the other side
+#  package:
+#    name: "{{ rsync_package }}"
+#    state: present
+#  delegate_to: "{{ rsync_server }}"
+#  when: rsync_url != ''
 
 - name: Compute SSH config for rsync sync
   set_fact:
