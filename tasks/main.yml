@@ -106,7 +106,6 @@
       key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
       user: "{{ rsync_user }}"
   delegate_to: "{{ rsync_server }}"
-  remote_user: "{{ rsync_user }}"
   when: rsync_url != ''
 
 # Unfortunately recently fails with:
