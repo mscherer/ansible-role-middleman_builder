@@ -1,6 +1,10 @@
-Ansible module used by OSAS to deploy various middleman website. While
+Ansible module used by OSAS to deploy a static website builder. While
 working, the role is still being written, as seen by the TODO list at the end
 of this document.
+
+Currently this role supports the following web generators:
+* [Middleman](https://middlemanapp.com/)
+* [Jekyll](https://jekyllrb.com/)
 
 # Example
 
@@ -18,6 +22,9 @@ $ cat deploy_builder.yml
     rsync_server: www.example.org
     rsync_user: rsync_user
 ```
+
+The role defaults to using Middleman, but you can choose the web generator you need
+by setting the `builder` variable to either `middleman` or `jekyll`.
 
 This will deploy the build of https://git.example.org/website.git by
 using rsync as rsync_user on www.example.org, copying in /var/www/html.
