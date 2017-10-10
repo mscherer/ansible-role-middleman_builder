@@ -1,6 +1,10 @@
-Ansible module used by OSAS to deploy various middleman website. While
+Ansible module used by OSAS to deploy a static website builder. While
 working, the role is still being written, as seen by the TODO list at the end
 of this document.
+
+Currently this role supports the following web generators:
+* [Middleman](https://middlemanapp.com/)
+* [Jekyll](https://jekyllrb.com/)
 
 # Example
 
@@ -9,7 +13,7 @@ as well. In the simplest invocation, this should be something like this:
 
 ```
 $ cat deploy_builder.yml
-- hosts: webbuilder 
+- hosts: webbuilder
   roles:
   - role: builder
     name: website_example_org
@@ -19,10 +23,13 @@ $ cat deploy_builder.yml
     rsync_user: rsync_user
 ```
 
+The role defaults to using Middleman, but you can choose the web generator you need
+by setting the `builder` variable to either `middleman` or `jekyll`.
+
 This will deploy the build of https://git.example.org/website.git by
 using rsync as rsync_user on www.example.org, copying in /var/www/html.
 
-The script will not sync if build failed, and will not send email (that's on the 
+The script will not sync if build failed, and will not send email (that's on the
 TODO list, see end of the file). Nevertheless, failures caught by Cron can be
 sent to an email address if specified by `cron_error_email`; if you setup
 multiple builders using the same UNIX user, then beware only the latest email
@@ -30,7 +37,7 @@ defined will be taken into account.
 
 # Handling multiple repositories
 
-In order to support multiple repositories, the script detect if 
+In order to support multiple repositories, the script detect if
 submodules are used and track the latest commit for each and force update
 if needed. While that's not how submodules are supposed to be used, people
 often forget to update submodules and so we need to use this as a workaround.
@@ -48,7 +55,7 @@ push to openshift, with £NAME replaced by the name given to the role.
 
 # Regular rebuild
 
-The role will rebuild the website on a regular basis, every 6h 
+The role will rebuild the website on a regular basis, every 6h
 by default. This can be changed with the parameter `rebuild_interval`, which express
 the time between automated rebuild attempts if nothing changed, expressed in hours.
 
@@ -69,7 +76,7 @@ submodule_commits: {}
 ```
 
 Then, the build script can be run with `/usr/local/bin/build_deploy.py -d -f -n ~/website_example_org.yml`,
-which would force a build (-f) without pushing (-n) with debug turned on (-d). 
+which would force a build (-f) without pushing (-n) with debug turned on (-d).
 
 # Missing features
 
