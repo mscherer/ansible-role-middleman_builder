@@ -108,6 +108,12 @@
   delegate_to: "{{ rsync_server }}"
   when: rsync_url != ''
 
+- name: Install Rsync
+  package:
+    name: "{{ rsync_package }}"
+    state: present
+  when: rsync_url != ''
+
 - name: Install Rsync on the other side
   package:
     name: "{{ rsync_package }}"
