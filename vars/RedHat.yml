@@ -13,7 +13,8 @@ package_list:
   - mutt
 # nokogiri build requires patch
   - patch
-# nokogiri also requires zlib-devel to build libxml
+# nokogiri also requires zlib-devel and tar to build libxml
   - zlib-devel
+  - tar
   - PyYAML
 
