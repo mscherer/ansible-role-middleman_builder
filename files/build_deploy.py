@@ -27,6 +27,7 @@
 import yaml
 import sys
 import os
+import errno
 import subprocess
 import datetime
 import atexit
@@ -287,6 +288,16 @@ if config.get('update_submodule_head', False):
 
 build_subdir = builder_info[config['builder']]['build_subdir']
 build_dir = '%s/%s' % (checkout_dir, build_subdir)
+
+# ensure build directory exist or creating the sync log would fail
+try:
+  # TODO: use exist_ok instead of all this crap when switching to Python 3
+  os.makedirs(build_dir, mode=0775)
+except OSError as exc:
+    if exc.errno == errno.EEXIST and os.path.isdir(build_dir):
+        pass
+    else:
+        raise
 
 # Using a .txt extension to ensure webservers will allow access to it
 sync_log_path = '%s/build_log.txt' % build_dir
