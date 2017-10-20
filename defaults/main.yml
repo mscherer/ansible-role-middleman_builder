@@ -7,3 +7,4 @@ watchers:  []
 irc_server: False
 # in hours
 rebuild_interval: 6
+external_trigger: False
