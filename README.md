@@ -78,6 +78,13 @@ submodule_commits: {}
 Then, the build script can be run with `/usr/local/bin/build_deploy.py -d -f -n ~/website_example_org.yml`,
 which would force a build (-f) without pushing (-n) with debug turned on (-d).
 
+# Jenkins integration
+
+If you wish to use the role with a external system to trigger such as Jenkins, you will need to disable
+the cronjob use to run the build job on a regular basis. This can be done by setting the variable `external_trigger`
+to True. This will also likely requires to use the `--no-refresh` option for the build script to not mess with
+Jenkins git updating, depending on the setup you want.
+
 # Missing features
 
 While being already used in production, several options are missing

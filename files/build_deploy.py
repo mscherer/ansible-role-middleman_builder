@@ -47,7 +47,8 @@ parser.add_argument("-d", "--debug", help="show debug output",
 parser.add_argument("-s", "--sync-only", help="do not build, only sync",
                     action="store_true")
 parser.add_argument("config_file", help="yaml file for the builder config")
-
+parser.add_argument("--no-refresh" help="do not refresh the checkout",
+                    action="store_true")
 args = parser.parse_args()
 
 
@@ -259,15 +260,16 @@ log_fd.write("\n")
 syslog.syslog("Start the build of {}".format(name))
 
 os.chdir(checkout_dir)
-try:
-    result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
-    debug_print(result)
-    result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
-    debug_print(result)
-    result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
-    debug_print(result)
-except subprocess.CalledProcessError, C:
-    notify_error('setup', C.output)
+if not args.no_refresh:
+    try:
+        result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
+        debug_print(result)
+        result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
+        debug_print(result)
+        result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
+        debug_print(result)
+    except subprocess.CalledProcessError, C:
+        notify_error('setup', C.output)
 
 if has_submodules(checkout_dir):
     try:
