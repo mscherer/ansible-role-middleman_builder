@@ -83,7 +83,7 @@
     name: "build and deploy {{ name }}"
     job: "/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml"
     user: "{{ builder_username }}"
-    state: "{{ if external_trigger }}absent{{ else }}present{{ endif }}"
+    state: "{% if external_trigger %}absent{% else %}present{% endif %}"
 
 - name: Setup cron email
   cronvar:
