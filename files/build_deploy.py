@@ -47,7 +47,7 @@ parser.add_argument("-d", "--debug", help="show debug output",
 parser.add_argument("-s", "--sync-only", help="do not build, only sync",
                     action="store_true")
 parser.add_argument("config_file", help="yaml file for the builder config")
-parser.add_argument("--no-refresh" help="do not refresh the checkout",
+parser.add_argument("--no-refresh", help="do not refresh the checkout",
                     action="store_true")
 args = parser.parse_args()
 
