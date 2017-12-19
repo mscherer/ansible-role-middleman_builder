@@ -170,8 +170,7 @@ def do_rsync(source):
                 '-rltogvz',
                 '--omit-dir-times',
                 source,
-                config['remote']],
-                stderr=subprocess.STDOUT)
+                config['remote']], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, C:
         notify_error('setup', C.output)
     return r
