@@ -115,7 +115,7 @@ def get_submodules_checkout(checkout_dir):
     os.chdir(checkout_dir)
     result = []
     try:
-       submodule_status = subprocess.check_output(['git', 'submodule', 'status'])
+        submodule_status = subprocess.check_output(['git', 'submodule', 'status'])
     except subprocess.CalledProcessError, C:
         notify_error('setup', C.output)
     for s in submodule_status.split('\n'):
@@ -294,8 +294,8 @@ build_dir = '%s/%s' % (checkout_dir, build_subdir)
 
 # ensure build directory exist or creating the sync log would fail
 try:
-  # TODO: use exist_ok instead of all this crap when switching to Python 3
-  os.makedirs(build_dir, mode=0775)
+    # TODO: use exist_ok instead of all this crap when switching to Python 3
+    os.makedirs(build_dir, mode=0775)
 except OSError as exc:
     if exc.errno == errno.EEXIST and os.path.isdir(build_dir):
         pass
