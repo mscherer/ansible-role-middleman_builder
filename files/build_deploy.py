@@ -309,6 +309,8 @@ if not args.sync_only:
                          os.environ['PATH']
     try:
         syslog.syslog("Build of {}: bundle install".format(name))
+        # don't use embedded libraries to build Nokogiri
+        os.environ['NOKOGIRI_USE_SYSTEM_LIBRARIES'] = '1'
         result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
         debug_print(result)
     except subprocess.CalledProcessError, C:
