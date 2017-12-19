@@ -18,6 +18,8 @@ build:
 # do the tests
     - run_tests preflight
     - run_tests deploy
+  on_failure:
+    - cat /tmp/ansible_idempotency.log
 
 
 integrations:
