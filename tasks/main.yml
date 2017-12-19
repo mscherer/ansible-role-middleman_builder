@@ -55,6 +55,9 @@
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
+  register: git_res
+  # remote_url_changed is not always defined
+  changed_when: (git_res.remote_url_changed | default(false)) or (git_res.after != git_res.before)
 
 - name: Install gems required to build
   command: "bundle install --path ~/.gem"
