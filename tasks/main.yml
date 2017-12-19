@@ -140,8 +140,8 @@
     - name: Get OpenShift sync
       set_fact:
         # seen pattern: <user>@<host> or ssh://<user>@<host>/<path>
-        remote_user: "{{ site.openshift | regex_replace('^.*?([^/]+)@.*$', '\\1') }}"
-        remote_host: "{{ site.openshift | regex_replace('^.*@([^/]+).*$', '\\1') }}"
+        remote_user: "{{ openshift | default(site.openshift) | regex_replace('^.*?([^/]+)@.*$', '\\1') }}"
+        remote_host: "{{ openshift | default(site.openshift) | regex_replace('^.*@([^/]+).*$', '\\1') }}"
   when: rsync_url == ''
 
 - name: Create SSH config

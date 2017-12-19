@@ -48,6 +48,8 @@ This cannot be turned off for now, but will be added as a option if needed.
 
 The role can also be used with non managed services, such as openshift online v2.
 For that, you need to deploy the role without giving a `rsync_server` argument.
+The openshift URI is taken from the 'data/site.yml' configuration file but can be
+overridden using the `openshift` variable.
 
 Then, you need to make sure that `bundle exec middleman deploy` is able to push
 the website. In the case of openshift, this implies to let the key in ~/.ssh/$NAME.pub
