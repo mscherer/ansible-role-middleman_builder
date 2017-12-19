@@ -153,6 +153,7 @@ def notify_error(stage, error):
     print error
     sys.exit(3)
 
+
 def do_rsync(source):
     try:
         r = subprocess.check_output(
