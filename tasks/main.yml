@@ -51,6 +51,7 @@
     repo: "{{ git_url }}"
     dest: "{{ checkout_dir }}"
     version: "{{ git_version | default( 'HEAD' ) }}"
+    force: yes   # needed because of submodules to avoid "Local modifications exist in repository"
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
