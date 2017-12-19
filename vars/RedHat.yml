@@ -17,4 +17,6 @@ package_list:
   - zlib-devel
   - tar
   - PyYAML
+  - libxml2-devel
+  - libxslt-devel
 

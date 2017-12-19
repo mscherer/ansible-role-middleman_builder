@@ -15,4 +15,6 @@ package_list:
   - zlib1g-dev
   - tar
   - python-yaml
+  - libxml2-dev
+  - libxslt1-dev
 
