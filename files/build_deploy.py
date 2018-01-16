@@ -58,8 +58,10 @@ builder_info = {
         'build_subdir': 'build',
         'deploy_command': ['bundle', 'exec', 'middleman', 'deploy', '--no-build-before']
     },
+    # Duck: we had an incomplete build for Pulp (new post but blog index not updated)
+    #       disabling --incremental mode for now
     'jekyll': {
-        'build_command': ['bundle', 'exec', 'jekyll', 'build', '--incremental', '--verbose', '--trace'],
+        'build_command': ['bundle', 'exec', 'jekyll', 'build', '--verbose', '--trace'],
         'build_subdir': '_site',
         'deploy_command': None
     }
