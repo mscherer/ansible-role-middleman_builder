@@ -64,6 +64,11 @@ builder_info = {
         'build_command': ['bundle', 'exec', 'jekyll', 'build', '--verbose', '--trace'],
         'build_subdir': '_site',
         'deploy_command': None
+    },
+    'ascii_binder': {
+        'build_command': ['bundle', 'exec', 'asciibinder', 'package', '--site=main', '--log-level=debug'],
+        'build_subdir': '_package/main',
+        'deploy_command': None
     }
 }
 
