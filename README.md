@@ -16,7 +16,7 @@ $ cat deploy_builder.yml
 - hosts: webbuilder
   roles:
   - role: builder
-    name: website_example_org
+    builder_name: website_example_org
     git_url: "https://git.example.org/website.git"
     rsync_location: /var/www/html
     rsync_server: www.example.org

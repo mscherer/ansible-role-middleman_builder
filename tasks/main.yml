@@ -20,7 +20,7 @@
 
 - name: Define checkout directory
   set_fact:
-    checkout_dir: "/srv/builder/{{ name }}"
+    checkout_dir: "/srv/builder/{{ builder_name }}"
 
 - name: Deploy the build script
   copy:
@@ -36,7 +36,7 @@
     comment: "Static builder user"
     generate_ssh_key: yes
     home: "/srv/builder"
-    ssh_key_file: "/srv/builder/.ssh/{{ name }}_id.rsa"
+    ssh_key_file: "/srv/builder/.ssh/{{ builder_name }}_id.rsa"
   register: result
 
 # needed so NRPE can check log
@@ -77,15 +77,15 @@
       rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
-- name: Deploy yaml config for {{ name }}
+- name: Deploy yaml config for {{ builder_name }}
   template:
-    dest: "/srv/builder/{{ name }}.yml"
+    dest: "/srv/builder/{{ builder_name }}.yml"
     src: builder.yml
 
-- name: Add cron to build {{ name }}
+- name: Add cron to build {{ builder_name }}
   cron:
-    name: "build and deploy {{ name }}"
-    job: "/usr/local/bin/build_deploy.py /srv/builder/{{ name }}.yml"
+    name: "build and deploy {{ builder_name }}"
+    job: "/usr/local/bin/build_deploy.py /srv/builder/{{ builder_name }}.yml"
     user: "{{ builder_username }}"
     state: "{% if external_trigger %}absent{% else %}present{% endif %}"
 
@@ -136,7 +136,7 @@
   block:
     - name: Fetch site configuration
       slurp:
-        src: "/srv/builder/{{ name }}/data/site.yml"
+        src: "/srv/builder/{{ builder_name }}/data/site.yml"
       register: site_raw
     - name: Parse site configuration
       set_fact:
@@ -155,7 +155,7 @@
     group: "{{ builder_username }}"
     block: |
       Match Host {{ remote_host }} User {{ remote_user }}
-      	IdentityFile /srv/builder/.ssh/{{ name }}_id.rsa
-    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ name }}"
+      	IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
     create: true
 
