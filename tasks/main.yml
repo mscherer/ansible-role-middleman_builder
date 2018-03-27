@@ -59,6 +59,11 @@
   # remote_url_changed is not always defined
   changed_when: (git_res.remote_url_changed | default(false)) or (git_res.after != git_res.before)
 
+- name: Check if a Gemfile is present
+  stat:
+    path: "{{ checkout_dir }}/Gemfile"
+  register: gemfile_st
+
 - name: Install gems required to build
   command: "bundle install --path ~/.gem"
   args:
@@ -67,6 +72,7 @@
   become_user: '{{ builder_username }}'
   become_method: 'su'
   changed_when: False
+  when: gemfile_st.stat.exists
 
 - name: Clear RSYNC URL
   set_fact:

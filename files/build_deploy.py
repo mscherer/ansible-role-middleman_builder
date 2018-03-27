@@ -314,22 +314,24 @@ sync_log_path = '%s/build_log.txt' % build_dir
 if not args.sync_only:
     os.environ['PATH'] = "/usr/local/bin:/srv/builder/bin:" + \
                          os.environ['PATH']
-    try:
-        syslog.syslog("Build of {}: bundle install".format(name))
-        # don't use embedded libraries to build Nokogiri
-        os.environ['NOKOGIRI_USE_SYSTEM_LIBRARIES'] = '1'
-        result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
-        debug_print(result)
-    except subprocess.CalledProcessError, C:
-        log_print(C.output)
-        if config['remote']:
-            # copy log in build dir and sync it to make it available to users
-            shutil.copy2(log_file, sync_log_path)
-            try:
-                do_rsync(sync_log_path)
-            except subprocess.CalledProcessError, C:
-                pass
-        notify_error('install', C.output)
+
+    if os.path.exists('Gemfile'):
+        try:
+            syslog.syslog("Build of {}: bundle install".format(name))
+            # don't use embedded libraries to build Nokogiri
+            os.environ['NOKOGIRI_USE_SYSTEM_LIBRARIES'] = '1'
+            result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
+            debug_print(result)
+        except subprocess.CalledProcessError, C:
+            log_print(C.output)
+            if config['remote']:
+                # copy log in build dir and sync it to make it available to users
+                shutil.copy2(log_file, sync_log_path)
+                try:
+                    do_rsync(sync_log_path)
+                except subprocess.CalledProcessError, C:
+                    pass
+            notify_error('install', C.output)
 
     try:
         command = builder_info[config['builder']]['build_command']
