@@ -1,0 +1,9 @@
+---
+# if the builder cannot be installed via packages
+builder_repo:
+  planet:
+    url: https://github.com/rubys/venus.git
+    subdest: planet-venus
+    writable_subdirs:
+      - themes
+

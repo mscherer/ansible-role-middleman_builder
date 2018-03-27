@@ -6,9 +6,17 @@
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
 
-- name: Install packages
-  package: name={{ item }} state=present
-  with_items: "{{ package_list }}"
+- name: Install common packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ package_list['common'] }}"
+
+- name: Install builder-specific packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ package_list[builder] }}"
 
 - name: Install more packages for Fedora
   package:
@@ -45,6 +53,25 @@
     path: "/srv/builder"
     mode: 0755
     state: directory
+
+# not before the homedir is created
+- name: "Prepare builder software manually"
+  block:
+    - name: "Install builder's repository"
+      git:
+        repo: "{{ builder_repo[builder].url }}"
+        dest: "/srv/builder/{{ builder_repo[builder].subdest }}"
+        version: "{{ builder_repo[builder].version | default('HEAD') }}"
+        update: yes
+        force: yes
+    - name: "Setup writable directories in builder's repository"
+      file:
+        path: "/srv/builder/{{ builder_repo[builder].subdest }}/{{ item }}"
+        owner: '{{ builder_username }}'
+        group: '{{ builder_username }}'
+        recurse: yes
+      with_items: "{{ builder_repo[builder].writable_subdirs | default([]) }}"
+  when: builder_repo[builder] is defined
 
 - name: Clone git repo {{ git_url }}
   git:

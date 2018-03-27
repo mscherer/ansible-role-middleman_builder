@@ -69,6 +69,11 @@ builder_info = {
         'build_command': ['bundle', 'exec', 'asciibinder', 'package', '--site=main', '--log-level=debug'],
         'build_subdir': '_package/main',
         'deploy_command': None
+    },
+    'planet': {
+        'build_command': ['/srv/builder/planet-venus/planet.py', '-v', 'planet.ini'],
+        'build_subdir': 'build',
+        'deploy_command': None
     }
 }
 
