@@ -3,6 +3,6 @@
   remote_user: root
   roles:
   - role: <ROLE_NAME>
-    name: testvhost
+    builder_name: testvhost
     git_url: https://github.com/OSAS/middleman-springboard.git
     openshift: 12fea2b4c1b98683b3eae078@site-user.rhcloud.com
