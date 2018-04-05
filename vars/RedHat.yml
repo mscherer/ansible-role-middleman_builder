@@ -1,16 +1,13 @@
 ---
 rsync_package: rsync
-package_list:
+package_list_ruby_bundler: &bundler_deps
   - rubygem-bundler
   - ruby-devel
   - curl-devel
-  - git
   - make
   - gcc
   - gcc-c++
   - ImageMagick
-# used to send email about build broken
-  - mutt
 # nokogiri build requires patch
   - patch
 # nokogiri also requires zlib-devel and tar to build libxml
@@ -19,4 +16,14 @@ package_list:
   - PyYAML
   - libxml2-devel
   - libxslt-devel
+package_list:
+  common:
+    - git
+# used to send email about build broken
+    - mutt
+  middleman: *bundler_deps
+  jekyll: *bundler_deps
+  ascii_binder: *bundler_deps
+  planet:
+    - planet
 

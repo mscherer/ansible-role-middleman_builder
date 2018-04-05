@@ -3,8 +3,9 @@ working, the role is still being written, as seen by the TODO list at the end
 of this document.
 
 Currently this role supports the following web generators:
-* [Middleman](https://middlemanapp.com/)
 * [Jekyll](https://jekyllrb.com/)
+* [Middleman](https://middlemanapp.com/)
+* Planet (only the original Planet available in EPEL has been tested)
 
 # Example
 
