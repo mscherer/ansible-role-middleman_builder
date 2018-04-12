@@ -1,0 +1,17 @@
+---
+
+- name: Install Web Builder
+  hosts: ansible-test-builder
+  tasks:
+    - name: Testing role
+      include_role:
+        name: ansible-role-web_builder
+      vars:
+        builder_name: testbuilder
+        builder_username: web_builder
+        auto_deploy_hour: "*/6"
+        cron_error_email: "noone@example.com"
+        rsync_server: ansible-test-web
+        rsync_user: web_builder
+        rsync_location: /var/www/www.example.com
+

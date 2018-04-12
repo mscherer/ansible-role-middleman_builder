@@ -1,0 +1,84 @@
+---
+
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ not lookup('env', 'MOLECULE_DEBUG') | bool }}"
+  tasks:
+    - name: Log into a Docker registry
+      docker_login:
+        username: "{{ item.docker.registry.credentials.username }}"
+        password: "{{ item.docker.registry.credentials.password }}"
+        email: "{{ item.docker.registry.credentials.email | default(omit) }}"
+        registry: "{{ item.docker.registry.url }}"
+      with_items: "{{ molecule_yml.platforms }}"
+      when:
+        - item.docker.registry is defined
+        - item.docker.registry.credentials is defined
+        - item.docker.registry.credentials.username is defined
+
+    - name: Create Dockerfiles from image names
+      template:
+        src: "{{ molecule_scenario_directory }}/../_resources/Dockerfile.j2"
+        dest: "{{ molecule_ephemeral_directory }}/Dockerfile_{{ item.docker.image | regex_replace('[^a-zA-Z0-9_]', '_') }}"
+      with_items: "{{ molecule_yml.platforms }}"
+      register: platforms
+
+    - name: Discover local Docker images
+      docker_image_facts:
+        name: "molecule_local/{{ item.item.name }}"
+      with_items: "{{ platforms.results }}"
+      register: docker_images
+
+    - name: Build an Ansible compatible image
+      docker_image:
+        path: "{{ molecule_ephemeral_directory }}"
+        name: "molecule_local/{{ item.item.docker.image }}"
+        dockerfile: "{{ item.item.docker.dockerfile | default(item.invocation.module_args.dest) }}"
+        force: "{{ item.item.docker.force | default(true) }}"
+      with_items: "{{ platforms.results }}"
+      when: platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
+
+    # put all machines in the same network
+    - name: Create docker network
+      docker_network:
+        name: "testnetwork"
+        state: present
+
+    - name: Create molecule instance(s)
+      docker_container:
+        name: "{{ item.name }}"
+        # to ensure having a real FQDN
+        hostname: "{{ item.name }}.example.com"
+        image: "molecule_local/{{ item.docker.image }}"
+        state: started
+        recreate: false
+        log_driver: json-file
+        command: /sbin/init
+        privileged: True
+        network_mode: bridge
+        volumes: "{{ item.docker.volumes | default(omit) }}"
+        capabilities: "{{ item.docker.capabilities | default(omit) }}"
+        exposed_ports: "{{ item.docker.exposed_ports | default(omit) }}"
+        published_ports: "{{ item.docker.published_ports | default(omit) }}"
+        ulimits: "{{ item.docker.ulimits | default(omit) }}"
+        networks:
+          - name: testnetwork
+            aliases:
+              # allow access via short DNS name
+              - "{{ item.name }}"
+        dns_servers: "{{ item.docker.dns_servers | default(omit) }}"
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      async: 7200
+      poll: 0
+
+    - name: Wait for instance(s) creation to complete
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: docker_jobs
+      until: docker_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+
