@@ -1,3 +1,4 @@
+---
 name: {{ builder_name }}
 builder: {{ builder }}
 notification:
@@ -6,14 +7,14 @@ notification:
     server: {{ irc_server }}
     chans:
     {% for i in irc_chans %}
-    - {{ i }}
+      - {{ i }}
     {% endfor %}
     nick: {{ irc_nick }}
 {% endif %}
   mail:
     watchers:
     {% for w in watchers %}
-    - {{ w }}
+      - {{ w }}
     {% endfor %}
     # unused for now
     email_commiter: False

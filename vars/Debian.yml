@@ -6,9 +6,9 @@ package_list_ruby_bundler: &bundler_deps
   - libcurl4-gnutls-dev
   - build-essential
   - imagemagick
-# nokogiri build requires patch
+  # nokogiri build requires patch
   - patch
-# nokogiri also requires zlib-devel and tar to build libxml
+  # nokogiri also requires zlib-devel and tar to build libxml
   - zlib1g-dev
   - tar
   - python-yaml
@@ -17,7 +17,7 @@ package_list_ruby_bundler: &bundler_deps
 package_list:
   common:
     - git
-# used to send email about build broken
+    # used to send email about build broken
     - mutt
   middleman: *bundler_deps
   jekyll: *bundler_deps

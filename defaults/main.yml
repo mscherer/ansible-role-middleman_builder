@@ -1,9 +1,10 @@
+---
 # the username that will run the middleman builder
 # # user will be created along a pair of ssh key
 builder_username: middleman_builder
 builder: 'middleman'
 update_submodules: True
-watchers:  []
+watchers: []
 irc_server: False
 # in hours
 rebuild_interval: 6
