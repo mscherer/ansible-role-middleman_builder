@@ -6,7 +6,7 @@ Currently this role supports the following web generators:
 * Ascii Binder (http://asciibinder.org/)
 * [Jekyll](https://jekyllrb.com/)
 * [Middleman](https://middlemanapp.com/)
-* Planet (only the original Planet available in EPEL has been tested)
+* Planet (using Planet Venus)
 
 # Example
 
