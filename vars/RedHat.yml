@@ -1,30 +1,31 @@
 ---
 rsync_package: rsync
-package_list_ruby_bundler: &bundler_deps
-  - rubygem-bundler
-  - ruby-devel
-  - curl-devel
-  - make
-  - gcc
-  - gcc-c++
-  - ImageMagick
-  # nokogiri build requires patch
-  - patch
-  # nokogiri also requires zlib-devel and tar to build libxml
-  - zlib-devel
-  - tar
-  - PyYAML
-  - libxml2-devel
-  - libxslt-devel
-  - libidn-devel
 package_list:
   common:
     - git
     # used to send email about build broken
     - mutt
-  middleman: *bundler_deps
-  jekyll: *bundler_deps
-  ascii_binder: *bundler_deps
+    ### follows Ruby Bundler and common Ruby dependencies
+    ### (as we honor Gemfiles even if the builder it does not need it, we have to install them)
+    - rubygem-bundler
+    - ruby-devel
+    - curl-devel
+    - make
+    - gcc
+    - gcc-c++
+    - ImageMagick
+    # nokogiri build requires patch
+    - patch
+    # nokogiri also requires zlib-devel and tar to build libxml
+    - zlib-devel
+    - tar
+    - PyYAML
+    - libxml2-devel
+    - libxslt-devel
+    - libidn-devel
+  middleman: []
+  jekyll: []
+  ascii_binder: []
   planet:
     - planet
 
