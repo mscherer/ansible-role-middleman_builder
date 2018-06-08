@@ -16,6 +16,7 @@ package_list_ruby_bundler: &bundler_deps
   - PyYAML
   - libxml2-devel
   - libxslt-devel
+  - libidn-devel
 package_list:
   common:
     - git
