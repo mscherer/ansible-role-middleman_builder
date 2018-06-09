@@ -6,17 +6,10 @@
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
 
-- name: Install common packages
+- name: Install common and builder-specific packages
   package:
-    name: "{{ item }}"
+    name: "{{ package_list['common'] + package_list[builder] }}"
     state: present
-  with_items: "{{ package_list['common'] }}"
-
-- name: Install builder-specific packages
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ package_list[builder] }}"
 
 - name: Install more packages for Fedora
   package:
