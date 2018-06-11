@@ -12,10 +12,9 @@
       when: ansible_virtualization_type != 'docker'
     - name: Install needed tools (EL)
       package:
-        name: "{{ item }}"
+        name:
+          - epel-release
         state: installed
-      with_items:
-        - epel-release
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
 - name: Prepare builder host
@@ -23,22 +22,20 @@
   tasks:
     - name: Install builder tools
       package:
-        name: "{{ item }}"
+        name:
+          - sudo              # needed for tests
+          - openssh-clients   # to communicate between machines
+          - crontabs          # to setup cron jobs
         state: installed
-      with_items:
-        - sudo              # needed for tests
-        - openssh-clients   # to communicate between machines
-        - crontabs          # to setup cron jobs
 
 - name: Prepare web host
   hosts: ansible-test-web
   tasks:
     - name: Install builder tools
       package:
-        name: "{{ item }}"
+        name:
+          - openssh-server    # to communicate between machines
         state: installed
-      with_items:
-        - openssh-server    # to communicate between machines
     - name: start SSH daemon
       service:
         name: sshd

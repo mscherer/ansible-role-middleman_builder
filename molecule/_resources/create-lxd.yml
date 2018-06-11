@@ -1,5 +1,4 @@
 ---
-
 - name: Create
   hosts: localhost
   connection: local
@@ -20,4 +19,3 @@
         wait_for_ipv4_addresses: true
         timeout: 600
       with_items: "{{ molecule_yml.platforms }}"
-

@@ -10,7 +10,7 @@ Requirements
 or
 
 * Docker Engine
-* docker-py
+* docker
 
 Install
 =======

@@ -15,7 +15,7 @@ build:
     - apt-get install -y python-pip build-essential libffi-dev libssl-dev
     - docker info
     - pip install molecule
-    - pip install docker-py
+    - pip install docker
     - molecule --version
     - molecule --base-config molecule/base_molecule.yml test --driver-name docker --all
 
