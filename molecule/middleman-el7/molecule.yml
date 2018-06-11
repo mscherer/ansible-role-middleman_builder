@@ -19,4 +19,4 @@ provisioner:
       ansible-test-builder:
         builder: middleman
         # known working website
-        git_url: https://github.com/OSAS/community-website.git
+        git_url: https://gitlab.com/osas/middleman-springboard.git
