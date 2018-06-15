@@ -1,25 +1,23 @@
+---
 language: none
 
 
 build:
   pre_ci:
   pre_ci_boot:
-    image_name: quay.io/osas/test-ansible-role_image-builder
-    image_tag: latest
+    image_name: ubuntu
+    image_tag: rolling
     pull: true
     # we need a terminal or certain libc functions will fail
     options: "-ti"
   ci:
-    # debug info
-    - id
-    - export
-# prepare the tools
-    - run_tests setup
-# do the tests
-    - run_tests preflight
-    - run_tests deploy
-  on_failure:
-    - cat /tmp/ansible_idempotency.log
+    - apt-get update -qq
+    - apt-get install -y python-pip build-essential libffi-dev libssl-dev
+    - docker info
+    - pip install molecule
+    - pip install docker
+    - molecule --version
+    - molecule --base-config molecule/base_molecule.yml test --driver-name docker --all
 
 
 integrations:

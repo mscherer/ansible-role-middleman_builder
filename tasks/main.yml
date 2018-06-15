@@ -6,24 +6,17 @@
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
 
-- name: Install common packages
+- name: Install common and builder-specific packages
   package:
-    name: "{{ item }}"
+    name: "{{ package_list['common'] + package_list[builder] }}"
     state: present
-  with_items: "{{ package_list['common'] }}"
-
-- name: Install builder-specific packages
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ package_list[builder] }}"
 
 - name: Install more packages for Fedora
   package:
     name: "{{ item }}"
     state: present
   with_items:
-  - redhat-rpm-config
+    - redhat-rpm-config
   when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23'
 
 - name: Define checkout directory
@@ -103,17 +96,17 @@
 
 - name: Clear RSYNC URL
   set_fact:
-      rsync_url: ""
+    rsync_url: ""
 
 - name: Compute RSYNC URL
   set_fact:
-      rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
+    rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
 - name: Deploy yaml config for {{ builder_name }}
   template:
     dest: "/srv/builder/{{ builder_name }}.yml"
-    src: builder.yml
+    src: builder.yml.j2
 
 - name: Add cron to build {{ builder_name }}
   cron:
@@ -140,9 +133,9 @@
 # TODO add ip restriction
 - name: Copy the key on the other side
   authorized_key:
-      key: "{{ result.ssh_public_key }}"
-      key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
-      user: "{{ rsync_user }}"
+    key: "{{ result.ssh_public_key }}"
+    key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+    user: "{{ rsync_user }}"
   delegate_to: "{{ rsync_server }}"
   when: rsync_url != ''
 

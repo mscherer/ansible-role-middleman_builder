@@ -1,0 +1,55 @@
+---
+
+- name: Prepare hosts
+  hosts: all
+  tasks:
+    # to ensure having a real FQDN
+    # (dots are not allowed in LXD container names, thus sticking to short names)
+    - name: set proper hostname
+      hostname:
+        name: "{{ ansible_nodename }}.example.com"
+      # using the `hostname` instantiation parameter for Docker, as /etc/hostname cannot be modified
+      when: ansible_virtualization_type != 'docker'
+    - name: Install needed tools (EL)
+      package:
+        name:
+          - epel-release
+        state: installed
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Prepare builder host
+  hosts: ansible-test-builder
+  tasks:
+    - name: Install builder tools
+      package:
+        name:
+          - sudo              # needed for tests
+          - openssh-clients   # to communicate between machines
+          - crontabs          # to setup cron jobs
+        state: installed
+
+- name: Prepare web host
+  hosts: ansible-test-web
+  tasks:
+    - name: Install builder tools
+      package:
+        name:
+          - openssh-server    # to communicate between machines
+        state: installed
+    - name: start SSH daemon
+      service:
+        name: sshd
+        enabled: yes
+        state: started
+    - name: create web builder's user
+      user:
+        name: web_builder
+        comment: "Web Builder User"
+    - name: create web directory
+      file:
+        path: /var/www/www.example.com
+        state: directory
+        owner: web_builder
+        group: web_builder
+        mode: 0775
+

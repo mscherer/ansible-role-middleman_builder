@@ -1,0 +1,32 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: lxd
+lint:
+  name: yamllint
+provisioner:
+  name: ansible
+  options:
+    vv: True
+  inventory:
+    host_vars:
+      ansible-test-builder:
+      ansible-test-web:
+  env:
+    LANG: en_US.UTF-8
+  playbooks:
+    docker:
+      create: ../_resources/create-docker.yml
+      destroy: ../_resources/destroy-docker.yml
+    lxd:
+      create: ../_resources/create-lxd.yml
+      destroy: ../_resources/destroy-lxd.yml
+    prepare: ../_resources/prepare.yml
+    converge: ../_resources/playbook.yml
+  lint:
+    name: ansible-lint
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
