@@ -9,7 +9,6 @@
       vars:
         builder_name: testbuilder
         builder_username: web_builder
-        auto_deploy_hour: "*/6"
         cron_error_email: "noone@example.com"
         rsync_server: ansible-test-web
         rsync_user: web_builder
