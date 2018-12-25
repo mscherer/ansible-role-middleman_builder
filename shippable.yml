@@ -17,7 +17,7 @@ build:
     - pip install molecule
     - pip install docker
     - molecule --version
-    - molecule --base-config molecule/base_molecule.yml test --driver-name docker --all
+    - molecule --debug --base-config molecule/base_molecule.yml test --driver-name docker --all
 
 
 integrations:
