@@ -3,16 +3,18 @@ scenario:
   name: ascii_binder_f27
 platforms:
   - name: ansible-test-builder
-    lxd:
-      image: 'fedora/27/amd64'
-    docker:
-      image: 'fedora:27'
+    # LXD
+    source:
+      alias: 'fedora/27/amd64'
+    # Docker
+    image: 'fedora:27'
   # this one is always the same
   - name: ansible-test-web
-    lxd:
-      image: 'centos/7/amd64'
-    docker:
-      image: 'centos:7'
+    # LXD
+    source:
+      alias: 'centos/7/amd64'
+    # Docker
+    image: 'centos:7'
 provisioner:
   inventory:
     host_vars:
