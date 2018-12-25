@@ -27,6 +27,11 @@
           - openssh-clients   # to communicate between machines
           - crontabs          # to setup cron jobs
         state: installed
+    # do not interfer with manual tests
+    - name: Stop cron
+      service:
+        name: crond
+        state: stopped
 
 - name: Prepare web host
   hosts: ansible-test-web
