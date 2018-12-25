@@ -359,7 +359,7 @@ if not args.dry_run:
             if command:
                 result = subprocess.check_output(command)
             else:
-                notify_error('deploy', "builder '%s' does not possess a deploy method" % config['builder'])
+                result = "No deployment done: no Rsync settings provided and this builder has no reployment method defined"
         debug_print(result)
     except subprocess.CalledProcessError, C:
         notify_error('deploy', C.output)

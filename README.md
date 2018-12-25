@@ -29,7 +29,9 @@ The role defaults to using Middleman, but you can choose the web generator you n
 by setting the `builder` variable to either `middleman` or `jekyll`.
 
 This will deploy the build of https://git.example.org/website.git by
-using rsync as rsync_user on www.example.org, copying in /var/www/html.
+using rsync as rsync_user on www.example.org, copying in /var/www/html. If you do
+not provide it, then no deployment the default builder deployment method is used
+instead, if any. The OpenShift deployment has been removed as version 2 is EOL.
 
 The script will not sync if build failed, and will not send email (that's on the
 TODO list, see end of the file). Nevertheless, failures caught by Cron can be
@@ -45,17 +47,6 @@ if needed. While that's not how submodules are supposed to be used, people
 often forget to update submodules and so we need to use this as a workaround.
 
 This cannot be turned off for now, but will be added as a option if needed.
-
-# Using with openshift
-
-The role can also be used with non managed services, such as openshift online v2.
-For that, you need to deploy the role without giving a `rsync_server` argument.
-The openshift URI is taken from the 'data/site.yml' configuration file but can be
-overridden using the `openshift` variable.
-
-Then, you need to make sure that `bundle exec middleman deploy` is able to push
-the website. In the case of openshift, this implies to let the key in ~/.ssh/$NAME.pub
-push to openshift, with £NAME replaced by the name given to the role.
 
 # Regular rebuild
 
