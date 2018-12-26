@@ -3,8 +3,13 @@
   hosts: localhost
   connection: local
   gather_facts: false
-  no_log: "{{ not lookup('env', 'MOLECULE_DEBUG') | bool }}"
+  no_log: "{{ not (lookup('env', 'MOLECULE_DEBUG') | bool or molecule_yml.provisioner.log|default(false) | bool) }}"
   tasks:
+    - name: Apply global default parameters
+      set_fact:
+        final_platforms: "{{ final_platforms | default([]) | union([platform_base.docker|combine(item)]) }}"
+      loop: "{{ molecule_yml.platforms }}"
+
     - name: Destroy molecule instance(s)
       docker_container:
         name: "{{ item.name }}"
@@ -12,7 +17,7 @@
         state: absent
         force_kill: "{{ item.force_kill | default(true) }}"
       register: server
-      with_items: "{{ molecule_yml.platforms }}"
+      with_items: "{{ final_platforms }}"
       async: 7200
       poll: 0
 
@@ -29,5 +34,4 @@
         name: "{{ item }}"
         docker_host: "{{ item.docker_host | default(lookup('env', 'DOCKER_HOST') or 'unix://var/run/docker.sock') }}"
         state: absent
-      with_items: "{{ molecule_yml.platforms | molecule_get_docker_networks }}"
-
+      with_items: "{{ final_platforms | molecule_get_docker_networks }}"

@@ -10,6 +10,23 @@ provisioner:
   options:
     vv: True
   inventory:
+    group_vars:
+      all:
+        platform_base:
+          lxd:
+            source:
+              type: image
+              server: https://images.linuxcontainers.org
+          docker:
+            hostname: "{{ item.name }}.example.com"
+            command: /sbin/init
+            privileged: True
+            network_mode: bridge
+            networks:
+              - name: testnetwork
+                aliases:
+                  # allow access via short DNS name
+                  - "{{ item.name }}"
     host_vars:
       ansible-test-builder:
       ansible-test-web:

@@ -1,6 +1,10 @@
 ---
 language: none
 
+env:
+  global:
+    - LC_ALL=C.UTF-8
+    - LANG=C.UTF-8
 
 build:
   pre_ci:
@@ -12,12 +16,12 @@ build:
     options: "-ti"
   ci:
     - apt-get update -qq
-    - apt-get install -y python-pip build-essential libffi-dev libssl-dev
+    - apt-get install -y python3-pip build-essential libffi-dev libssl-dev
     - docker info
-    - pip install molecule
-    - pip install docker
+    - pip3 install molecule
+    - pip3 install docker
     - molecule --version
-    - molecule --base-config molecule/base_molecule.yml test --driver-name docker --all
+    - molecule --debug --base-config molecule/base_molecule.yml test --driver-name docker --all
 
 
 integrations:
