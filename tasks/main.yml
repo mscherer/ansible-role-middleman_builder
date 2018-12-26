@@ -152,36 +152,15 @@
   delegate_to: "{{ rsync_server }}"
   when: rsync_url != ''
 
-- name: Compute SSH config for rsync sync
-  set_fact:
-    remote_user: "{{ rsync_user }}"
-    remote_host: "{{ rsync_server }}"
-  when: rsync_url != ''
-
-- name: Compute SSH config for openshift sync
-  block:
-    - name: Fetch site configuration
-      slurp:
-        src: "/srv/builder/{{ builder_name }}/data/site.yml"
-      register: site_raw
-    - name: Parse site configuration
-      set_fact:
-        site: "{{ site_raw['content'] | b64decode | from_yaml }}"
-    - name: Get OpenShift sync
-      set_fact:
-        # seen pattern: <user>@<host> or ssh://<user>@<host>/<path>
-        remote_user: "{{ openshift | default(site.openshift) | regex_replace('^.*?([^/]+)@.*$', '\\1') }}"
-        remote_host: "{{ openshift | default(site.openshift) | regex_replace('^.*@([^/]+).*$', '\\1') }}"
-  when: rsync_url == ''
-
-- name: Create SSH config
+- name: Create SSH config for rsync sync
   blockinfile:
     path: /srv/builder/.ssh/config
     owner: "{{ builder_username }}"
     group: "{{ builder_username }}"
     block: |
-      Match Host {{ remote_host }} User {{ remote_user }}
+      Match Host {{ rsync_server }} User {{ rsync_user }}
       	IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
     create: true
+  when: rsync_url != ''
 
