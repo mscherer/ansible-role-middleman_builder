@@ -292,14 +292,6 @@ if has_submodules(checkout_dir):
     except subprocess.CalledProcessError, C:
         notify_error('setup', C.output)
 
-if config.get('update_submodule_head', False):
-    try:
-        result = subprocess.check_output(['git', 'submodule', 'foreach',
-                                         '"git pull -qf origin master"'], stderr=subprocess.STDOUT)
-        debug_print(result)
-    except subprocess.CalledProcessError, C:
-        notify_error('setup', C.output)
-
 build_subdir = builder_info[config['builder']]['build_subdir']
 build_dir = '%s/%s' % (checkout_dir, build_subdir)
 
