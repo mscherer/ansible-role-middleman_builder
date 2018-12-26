@@ -1,13 +1,13 @@
 ---
 scenario:
-  name: jekyll-f28
+  name: jekyll-f29
 platforms:
   - name: ansible-test-builder
     # LXD
     source:
-      alias: 'fedora/28/amd64'
+      alias: 'fedora/29/amd64'
     # Docker
-    image: 'fedora:28'
+    image: 'fedora:29'
   # this one is always the same
   - name: ansible-test-web
     # LXD
