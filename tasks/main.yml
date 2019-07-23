@@ -96,7 +96,7 @@
 
 - name: Clear RSYNC URL
   set_fact:
-    rsync_url: ""
+    rsync_url: "nosync"
 
 - name: Compute RSYNC URL
   set_fact:
@@ -128,7 +128,7 @@
   setup:
   delegate_to: "{{ rsync_server }}"
   delegate_facts: True
-  when: rsync_url != '' and rsync_server not in play_hosts
+  when: rsync_url != 'nosync' and rsync_server not in play_hosts
 
 # TODO add ip restriction
 - name: Copy the key on the other side
@@ -137,20 +137,20 @@
     key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
     user: "{{ rsync_user }}"
   delegate_to: "{{ rsync_server }}"
-  when: rsync_url != ''
+  when: rsync_url != 'nosync'
 
 - name: Install Rsync
   package:
     name: "{{ rsync_package }}"
     state: present
-  when: rsync_url != ''
+  when: rsync_url != 'nosync'
 
 - name: Install Rsync on the other side
   package:
     name: "{{ rsync_package }}"
     state: present
   delegate_to: "{{ rsync_server }}"
-  when: rsync_url != ''
+  when: rsync_url != 'nosync'
 
 - name: Create SSH config for rsync sync
   blockinfile:
@@ -162,5 +162,5 @@
           IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
     create: true
-  when: rsync_url != ''
+  when: rsync_url != 'nosync'
 
