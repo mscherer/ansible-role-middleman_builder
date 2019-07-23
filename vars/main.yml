@@ -6,4 +6,5 @@ builder_repo:
     subdest: planet-venus
     writable_subdirs:
       - themes
+sync_ssh_key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
 
