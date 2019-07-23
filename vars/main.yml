@@ -7,4 +7,5 @@ builder_repo:
     writable_subdirs:
       - themes
 sync_ssh_key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
+builder_command: "/usr/local/bin/build_deploy.py {{ builder_options | default('') }} /srv/builder/{{ builder_name }}.yml"
 

@@ -9,3 +9,5 @@ irc_server: False
 # in hours
 rebuild_interval: 6
 external_trigger: False
+builder_container_build_now: True
+

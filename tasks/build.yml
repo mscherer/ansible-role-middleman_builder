@@ -1,0 +1,12 @@
+---
+
+- name: "Build now (container)"
+  vars:
+    builder_options: '-f -d'
+  block:
+    - name: "Build the website"
+      command: "{{ builder_command }}"
+      become_user: "{{ builder_username }}"
+      become: True
+      changed_when: True
+

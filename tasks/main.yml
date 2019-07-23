@@ -72,6 +72,7 @@
     dest: "{{ checkout_dir }}"
     version: "{{ git_version | default( 'HEAD' ) }}"
     force: yes   # needed because of submodules to avoid "Local modifications exist in repository"
+    umask: '0022'
   become: yes
   become_user: '{{ builder_username }}'
   become_method: 'su'
@@ -98,46 +99,20 @@
   set_fact:
     rsync_url: "nosync"
 
-- name: Compute RSYNC URL
+- name: "Compute RSYNC URL (remote)"
   set_fact:
     rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{ rsync_location }}"
-  when: rsync_server is defined and rsync_location is defined and rsync_user is defined
+  when: rsync_location is defined and rsync_server is defined and rsync_user is defined
+
+- name: "Compute RSYNC URL (local)"
+  set_fact:
+    rsync_url: "{{ rsync_location }}"
+  when: rsync_location is defined and rsync_server is undefined and rsync_user is undefined
 
 - name: Deploy yaml config for {{ builder_name }}
   template:
     dest: "/srv/builder/{{ builder_name }}.yml"
     src: builder.yml.j2
-
-- name: Add cron to build {{ builder_name }}
-  cron:
-    name: "build and deploy {{ builder_name }}"
-    job: "/usr/local/bin/build_deploy.py /srv/builder/{{ builder_name }}.yml"
-    user: "{{ builder_username }}"
-    state: "{% if external_trigger %}absent{% else %}present{% endif %}"
-
-- name: Setup cron email
-  cronvar:
-    user: "{{ builder_username }}"
-    name: MAILTO
-    value: "{{ cron_error_email }}"
-  when: cron_error_email is defined
-
-# needed to detect package manager (at least) on the other host
-# without cache or if it expired, the play would fail
-- name: Get facts for the other side
-  setup:
-  delegate_to: "{{ rsync_server }}"
-  delegate_facts: True
-  when: rsync_url != 'nosync' and rsync_server not in play_hosts
-
-# TODO add ip restriction
-- name: Copy the key on the other side
-  authorized_key:
-    key: "{{ result.ssh_public_key }}"
-    key_options: "{{ sync_ssh_key_options }}"
-    user: "{{ rsync_user }}"
-  delegate_to: "{{ rsync_server }}"
-  when: rsync_url != 'nosync'
 
 - name: Install Rsync
   package:
@@ -145,22 +120,11 @@
     state: present
   when: rsync_url != 'nosync'
 
-- name: Install Rsync on the other side
-  package:
-    name: "{{ rsync_package }}"
-    state: present
-  delegate_to: "{{ rsync_server }}"
-  when: rsync_url != 'nosync'
+- name: "Schedule build and sync"
+  include_tasks: schedule_build_and_sync.yml
+  when: ansible_env.container is undefined
 
-- name: Create SSH config for rsync sync
-  blockinfile:
-    path: /srv/builder/.ssh/config
-    owner: "{{ builder_username }}"
-    group: "{{ builder_username }}"
-    block: |
-      Match Host {{ rsync_server }} User {{ rsync_user }}
-          IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
-    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
-    create: true
-  when: rsync_url != 'nosync'
+- name: "Build now (container)"
+  include_tasks: build.yml
+  when: ansible_env.container is defined and builder_container_build_now|bool
 

@@ -1,0 +1,52 @@
+---
+
+- name: Add cron to build {{ builder_name }}
+  cron:
+    name: "build and deploy {{ builder_name }}"
+    job: "{{ builder_command }}"
+    user: "{{ builder_username }}"
+    state: "{% if external_trigger %}absent{% else %}present{% endif %}"
+
+- name: Setup cron email
+  cronvar:
+    user: "{{ builder_username }}"
+    name: MAILTO
+    value: "{{ cron_error_email }}"
+  when: cron_error_email is defined
+
+# needed to detect package manager (at least) on the other host
+# without cache or if it expired, the play would fail
+- name: Get facts for the other side
+  setup:
+  delegate_to: "{{ rsync_server }}"
+  delegate_facts: True
+  when: rsync_url != 'nosync' and rsync_server not in play_hosts
+
+# TODO add ip restriction
+- name: Copy the key on the other side
+  authorized_key:
+    key: "{{ result.ssh_public_key }}"
+    key_options: "{{ sync_ssh_key_options }}"
+    user: "{{ rsync_user }}"
+  delegate_to: "{{ rsync_server }}"
+  when: rsync_url != 'nosync'
+
+- name: Install Rsync on the other side
+  package:
+    name: "{{ rsync_package }}"
+    state: present
+  delegate_to: "{{ rsync_server }}"
+  when: rsync_url != 'nosync'
+
+- name: Create SSH config for rsync sync
+  blockinfile:
+    path: /srv/builder/.ssh/config
+    owner: "{{ builder_username }}"
+    group: "{{ builder_username }}"
+    block: |
+      Match Host {{ rsync_server }} User {{ rsync_user }}
+          IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
+    create: true
+  when: rsync_url != 'nosync'
+
