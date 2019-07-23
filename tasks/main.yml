@@ -100,7 +100,7 @@
 
 - name: Compute RSYNC URL
   set_fact:
-    rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{rsync_location}}"
+    rsync_url: "{{ rsync_user }}@{{ rsync_server }}:{{ rsync_location }}"
   when: rsync_server is defined and rsync_location is defined and rsync_user is defined
 
 - name: Deploy yaml config for {{ builder_name }}
