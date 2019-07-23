@@ -159,7 +159,7 @@
     group: "{{ builder_username }}"
     block: |
       Match Host {{ rsync_server }} User {{ rsync_user }}
-      	IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
+          IdentityFile /srv/builder/.ssh/{{ builder_name }}_id.rsa
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ builder_name }}"
     create: true
   when: rsync_url != ''
