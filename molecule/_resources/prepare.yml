@@ -35,6 +35,12 @@
           - openssh-clients   # to communicate between machines
           - crontabs          # to setup cron jobs
         state: installed
+    - name: "Ensure locales variables are preserved with sudo"
+      lineinfile:
+        path: /etc/sudoers
+        line: 'Defaults   env_keep += "LANG LANGUAGE LC_ALL"'
+        state: present
+        validate: /usr/sbin/visudo -cf %s
     # do not interfer with manual tests
     - name: Stop cron
       service:
