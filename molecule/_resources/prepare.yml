@@ -3,6 +3,13 @@
 - name: Prepare hosts
   hosts: all
   tasks:
+    - name: Install needed tools (Fedora)
+      package:
+        name:
+          # workaround for https://github.com/ansible/ansible/issues/59438
+          - hostname
+        state: installed
+      when: ansible_distribution == 'Fedora'
     # to ensure having a real FQDN
     # (dots are not allowed in LXD container names, thus sticking to short names)
     - name: set proper hostname
