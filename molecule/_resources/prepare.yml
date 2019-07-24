@@ -8,6 +8,7 @@
         name:
           # workaround for https://github.com/ansible/ansible/issues/59438
           - hostname
+          - glibc-all-langpacks
         state: installed
       when: ansible_distribution == 'Fedora'
     # to ensure having a real FQDN
