@@ -260,6 +260,11 @@ if not start_build:
     debug_print("Nothing to build")
     sys.exit(0)
 
+# use an Unicode-enabled locale
+os.environ['LC_ALL'] = 'en_US.UTF-8'
+os.environ['LANG'] = 'en_US.UTF-8'
+os.environ['LANGUAGE'] = 'en_US.UTF-8'
+
 # Do not open earlier or we would end-up logging a lot of
 # "Nothing to build" messages and lose the last build log.
 log_file = os.path.expanduser('~/%s.log' % name)
