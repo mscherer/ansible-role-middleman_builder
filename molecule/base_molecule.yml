@@ -31,7 +31,9 @@ provisioner:
       ansible-test-builder:
       ansible-test-web:
   env:
+    LC_ALL: en_US.UTF-8
     LANG: en_US.UTF-8
+    LANGUAGE: en_US.UTF-8
   playbooks:
     docker:
       create: ../_resources/create-docker.yml

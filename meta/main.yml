@@ -17,8 +17,6 @@ galaxy_info:
         - 21
         - 22
         - 23
-  categories:
-    - web
 dependencies: []
 # List your role dependencies here, one per line. Only
 # dependencies available via galaxy should be listed here.
