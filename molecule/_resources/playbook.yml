@@ -3,7 +3,7 @@
 - name: Install Web Builder
   hosts: ansible-test-builder
   tasks:
-    - name: Testing role
+    - name: "Testing role (host)"
       include_role:
         name: ansible-role-web_builder
       vars:
@@ -13,4 +13,10 @@
         rsync_server: ansible-test-web
         rsync_user: web_builder
         rsync_location: /var/www/www.example.com
+    - name: "Testing role (container)"
+      include_role:
+        name: ansible-role-web_builder
+      vars:
+        builder_name: testbuilder_container
+        builder_username: web_builder
 

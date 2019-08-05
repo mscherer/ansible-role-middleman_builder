@@ -32,6 +32,8 @@ This will deploy the build of https://git.example.org/website.git by
 using rsync as rsync_user on www.example.org, copying in /var/www/html. If you do
 not provide it, then no deployment the default builder deployment method is used
 instead, if any. The OpenShift deployment has been removed as version 2 is EOL.
+It is also possible to only provide a rsync_location without the other parameters
+for a local sync.
 
 The script will not sync if build failed, and will not send email (that's on the
 TODO list, see end of the file). Nevertheless, failures caught by Cron can be
@@ -54,6 +56,8 @@ The role will rebuild the website on a regular basis, every 6h
 by default. This can be changed with the parameter `rebuild_interval`, which express
 the time between automated rebuild attempts if nothing changed, expressed in hours.
 
+This feature is disabled on containers.
+
 # Debug the build
 
 In order to debug a non working build, the easiest is to connect to the
@@ -73,6 +77,15 @@ submodule_commits: {}
 Then, the build script can be run with `/usr/local/bin/build_deploy.py -d -f -n ~/website_example_org.yml`,
 which would force a build (-f) without pushing (-n) with debug turned on (-d).
 
+This feature is disabled on containers.
+
+# Containers
+
+If running in a container this role will not create crontabs but instead build the website at once. You may
+use the rsync feature to locally install the resulting pages in the proper place. In this case the publishing
+space may need to be created in between the builder is setup and the website built, so you may set
+`builder_container_build_now` to False and use the `build` entrypoint manually when convenient.
+
 # Jenkins integration
 
 If you wish to use the role with a external system to trigger such as Jenkins, you will need to disable
@@ -90,3 +103,6 @@ While being already used in production, several options are missing
 - proper logging of error
 - handling automatically some errors (like rebuilding gems)
 - change the schedule of automated rebuild
+- make result directory available to subsequent roles to avoid
+  copying files when unnecessary
+
