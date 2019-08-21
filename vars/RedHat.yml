@@ -23,6 +23,7 @@ package_list:
     - libxml2-devel
     - libxslt-devel
     - libidn-devel
+    - nodejs
   middleman: []
   jekyll: []
   ascii_binder: []
