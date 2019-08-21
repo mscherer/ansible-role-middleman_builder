@@ -107,7 +107,7 @@ def get_last_commit(checkout_dir):
     os.chdir(checkout_dir)
     try:
         r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
-                                     'refs/remotes/origin/HEAD'])
+                                     'refs/remotes/origin/%s' % config['git_version']])
     except subprocess.CalledProcessError, C:
         notify_error('setup', C.output)
     return r.split()[0]

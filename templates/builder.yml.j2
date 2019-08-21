@@ -1,6 +1,7 @@
 ---
 name: {{ builder_name }}
 builder: {{ builder }}
+git_version: {{ git_version | default( 'HEAD' ) }}
 notification:
 {% if irc_server %}
   irc:
