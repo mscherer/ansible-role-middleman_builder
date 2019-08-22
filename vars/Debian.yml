@@ -21,6 +21,7 @@ package_list:
     - libxml2-dev
     - libxslt1-dev
     - libidn11-dev
+    - nodejs
   middleman: []
   jekyll: []
   ascii_binder: []

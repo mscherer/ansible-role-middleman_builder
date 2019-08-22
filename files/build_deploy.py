@@ -54,6 +54,7 @@ args = parser.parse_args()
 
 builder_info = {
     'middleman': {
+        'build_env': {},
         'build_command': ['bundle', 'exec', 'middleman', 'build', '--verbose'],
         'build_subdir': 'build',
         'deploy_command': ['bundle', 'exec', 'middleman', 'deploy', '--no-build-before']
@@ -61,16 +62,21 @@ builder_info = {
     # Duck: we had an incomplete build for Pulp (new post but blog index not updated)
     #       disabling --incremental mode for now
     'jekyll': {
+        'build_env': {
+            'JEKYLL_ENV': 'production'
+        },
         'build_command': ['bundle', 'exec', 'jekyll', 'build', '--verbose', '--trace'],
         'build_subdir': '_site',
         'deploy_command': None
     },
     'ascii_binder': {
+        'build_env': {},
         'build_command': ['bundle', 'exec', 'asciibinder', 'package', '--site=main', '--log-level=debug'],
         'build_subdir': '_package/main',
         'deploy_command': None
     },
     'planet': {
+        'build_env': {},
         'build_command': ['/srv/builder/planet-venus/planet.py', '-v', 'planet.ini'],
         'build_subdir': 'build',
         'deploy_command': None
@@ -107,7 +113,7 @@ def get_last_commit(checkout_dir):
     os.chdir(checkout_dir)
     try:
         r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
-                                     'refs/remotes/origin/HEAD'])
+                                     'refs/remotes/origin/%s' % config['git_version']])
     except subprocess.CalledProcessError, C:
         notify_error('setup', C.output)
     return r.split()[0]
@@ -334,6 +340,10 @@ if not args.sync_only:
                 except subprocess.CalledProcessError, C:
                     pass
             notify_error('install', C.output)
+
+    # set environment
+    for env_name, env_value in builder_info[config['builder']]['build_env'].items():
+        os.environ[env_name] = env_value
 
     try:
         command = builder_info[config['builder']]['build_command']

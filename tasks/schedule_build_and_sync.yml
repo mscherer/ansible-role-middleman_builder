@@ -1,5 +1,15 @@
 ---
 
+- name: "Install cron"
+  package:
+    name: cronie
+    state: present
+
+- name: "Start cron service"
+  service:
+    name: crond
+    state: started
+
 - name: Add cron to build {{ builder_name }}
   cron:
     name: "build and deploy {{ builder_name }}"
