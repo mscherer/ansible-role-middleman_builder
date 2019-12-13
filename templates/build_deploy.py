@@ -395,4 +395,4 @@ status['last_build_human'] = datetime.datetime.now().strftime("%c")
 status['submodule_commits'] = current_submodule_commits
 
 with open(status_file, 'w+') as f:
-    f.write(yaml.dump(status, default_flow_style=False))
+    f.write(yaml.safe_dump(status, default_flow_style=False))
