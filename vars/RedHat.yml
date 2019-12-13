@@ -29,4 +29,6 @@ package_list:
   ascii_binder: []
   planet:
     - planet
+  nikola:
+    - python3-pip
 

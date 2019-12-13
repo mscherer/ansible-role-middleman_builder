@@ -1,0 +1,24 @@
+---
+scenario:
+  name: nikola-el8
+platforms:
+  - name: ansible-test-builder
+    # LXD
+    source:
+      alias: 'centos/8/amd64'
+    # Docker
+    image: 'centos:8'
+  # this one is always the same
+  - name: ansible-test-web
+    # LXD
+    source:
+      alias: 'centos/8/amd64'
+    # Docker
+    image: 'centos:8'
+provisioner:
+  inventory:
+    host_vars:
+      ansible-test-builder:
+        builder: nikola
+        # known working website
+        git_url: https://pagure.io/koji-site.git

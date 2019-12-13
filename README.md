@@ -6,6 +6,7 @@ Currently this role supports the following web generators:
 * Ascii Binder (http://asciibinder.org/)
 * [Jekyll](https://jekyllrb.com/)
 * [Middleman](https://middlemanapp.com/)
+* [Nikola](https://getnikola.com/)
 * Planet (using Planet Venus)
 
 # Example
@@ -57,6 +58,13 @@ by default. This can be changed with the parameter `rebuild_interval`, which exp
 the time between automated rebuild attempts if nothing changed, expressed in hours.
 
 This feature is disabled on containers.
+
+# Builder deployment specific parameters
+
+Sometimes a builder deployment really needs to be adapted because there is no way to do so later in the build configuration.
+
+- **nikola_theme**: theme name to install using Nikola's repository
+                    (the configuration file is not parsed, you need to maintain both parameters in sync)
 
 # Debug the build
 

@@ -6,6 +6,14 @@
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
 
+- name: "Enable PowerTools RPM Repository"
+  ini_file:
+    path: /etc/yum.repos.d/CentOS-PowerTools.repo
+    section: PowerTools
+    option: enabled
+    value: '1'
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8
+
 - name: Install common and builder-specific packages
   package:
     name: "{{ package_list['common'] + package_list[builder] }}"
@@ -94,6 +102,17 @@
   become_method: 'su'
   changed_when: False
   when: gemfile_st.stat.exists
+
+# after workdir is setup as it might use it
+- name: "Extra builder setup"
+  command: "{{ item }}"
+  args:
+    chdir: "{{ checkout_dir }}"
+  become: yes
+  become_user: '{{ builder_username }}'
+  become_method: 'su'
+  changed_when: False
+  loop: "{{ builder_setup[builder] | default([]) }}"
 
 - name: Clear RSYNC URL
   set_fact:

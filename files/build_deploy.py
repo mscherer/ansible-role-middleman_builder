@@ -80,6 +80,12 @@ builder_info = {
         'build_command': ['/srv/builder/planet-venus/planet.py', '-v', 'planet.ini'],
         'build_subdir': 'build',
         'deploy_command': None
+    },
+    'nikola': {
+        'build_env': {},
+        'build_command': ['nikola', 'build'],
+        'build_subdir': 'output',
+        'deploy_command': None
     }
 }
 
