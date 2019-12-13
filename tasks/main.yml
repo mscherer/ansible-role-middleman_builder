@@ -17,7 +17,7 @@
     state: present
   with_items:
     - redhat-rpm-config
-  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '23'
+  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version|int >= 23
 
 - name: Define checkout directory
   set_fact:
