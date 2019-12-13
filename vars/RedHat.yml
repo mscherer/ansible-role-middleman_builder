@@ -19,7 +19,7 @@ package_list:
     # nokogiri also requires zlib-devel and tar to build libxml
     - zlib-devel
     - tar
-    - PyYAML
+    - "{{ (ansible_python['version']['major'] == 3) | ternary('python3-pyyaml', 'PyYAML') }}"
     - libxml2-devel
     - libxslt-devel
     - libidn-devel

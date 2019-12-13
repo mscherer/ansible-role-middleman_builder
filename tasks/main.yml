@@ -32,7 +32,7 @@
     checkout_dir: "/srv/builder/{{ builder_name }}"
 
 - name: Deploy the build script
-  copy:
+  template:
     dest: /usr/local/bin/build_deploy.py
     src: build_deploy.py
     mode: 0755

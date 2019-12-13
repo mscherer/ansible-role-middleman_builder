@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python{{ ((ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8) or (ansible_os_family == "Debian" and ansible_distribution_major_version|int >= 10)) | ternary('3', '') }}
 #
 # Copyright (c) 2015 Michael Scherer <mscherer@redhat.com>
 #
@@ -83,7 +83,7 @@ builder_info = {
     },
     'nikola': {
         'build_env': {},
-        'build_command': ['nikola', 'build'],
+        'build_command': ['../.local/bin/nikola', 'build'],
         'build_subdir': 'output',
         'deploy_command': None
     }
@@ -102,7 +102,7 @@ def log_print(message):
 
 def debug_print(message):
     if args.debug:
-        print message
+        print(message)
     log_print(message)
 
 
@@ -110,9 +110,9 @@ def refresh_checkout(checkout_dir):
     os.chdir(checkout_dir)
     try:
         result = subprocess.check_output(['git', 'fetch', '-q'], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    debug_print(result)
+    debug_print(result.decode())
 
 
 def get_last_commit(checkout_dir):
@@ -120,9 +120,9 @@ def get_last_commit(checkout_dir):
     try:
         r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
                                      'refs/remotes/origin/%s' % config['git_version']])
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    return r.split()[0]
+    return r.decode().split()[0]
 
 
 def get_last_commit_submodule(checkout_dir, submodule):
@@ -130,9 +130,9 @@ def get_last_commit_submodule(checkout_dir, submodule):
     try:
         r = subprocess.check_output(['git', 'ls-remote', '-q', '.',
                                      'refs/remotes/origin/HEAD'])
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    return r.split()[0]
+    return r.decode().split()[0]
 
 
 def get_submodules_checkout(checkout_dir):
@@ -140,9 +140,9 @@ def get_submodules_checkout(checkout_dir):
     result = []
     try:
         submodule_status = subprocess.check_output(['git', 'submodule', 'status'])
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    for s in submodule_status.split('\n'):
+    for s in submodule_status.decode().split('\n'):
         # there is a empty line at the end...
         if s:
             result.append(s.split()[1])
@@ -151,10 +151,10 @@ def get_submodules_checkout(checkout_dir):
 
 def load_config(config_file):
     if not os.path.exists(config_file):
-        print "Error %s, do not exist" % config_file
+        print("Error %s, do not exist" % config_file)
         sys.exit(1)
     if not os.path.isfile(config_file):
-        print "Error %s is not a file" % config_file
+        print("Error %s is not a file" % config_file)
         sys.exit(1)
 
     with open(config_file) as f:
@@ -167,14 +167,14 @@ def has_submodules(checkout_dir):
     os.chdir(checkout_dir)
     try:
         r = subprocess.check_output(['git', 'submodule', 'status'])
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    return len(r) > 0
+    return len(r.decode()) > 0
 
 
 # TODO complete that
 def notify_error(stage, error):
-    print error
+    print(error)
     sys.exit(3)
 
 
@@ -195,20 +195,20 @@ def do_rsync(source):
                 '--omit-dir-times',
                 source,
                 config['remote']], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
-    return r
+    return r.decode()
 
 
 
 if not args.config_file:
-    print "This script take only 1 single argument, the config file"
+    print("This script take only 1 single argument, the config file")
     sys.exit(1)
 
 config = load_config(args.config_file)
 
 if 'name' not in config:
-    print "Incorrect config file: {}".format(args.config_file)
+    print("Incorrect config file: {}".format(args.config_file))
     sys.exit(1)
 
 name = config['name']
@@ -222,7 +222,7 @@ if os.path.exists(lock_file):
 
 # TODO try/except, show a better error message
 fd = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-os.write(fd, str(os.getpid()))
+os.write(fd, str(os.getpid()).encode())
 os.close(fd)
 atexit.register(os.unlink, lock_file)
 
@@ -235,7 +235,7 @@ if os.path.exists(status_file):
 checkout_dir = os.path.expanduser("~/%s" % name)
 if not os.path.isdir(checkout_dir):
     os.unlink(lock_file)
-    print "Checkout not existing, exiting"
+    print("Checkout not existing, exiting")
     sys.exit(2)
 
 refresh_checkout(checkout_dir)
@@ -292,21 +292,21 @@ os.chdir(checkout_dir)
 if not args.no_refresh:
     try:
         result = subprocess.check_output(['git', 'stash'], stderr=subprocess.STDOUT)
-        debug_print(result)
+        debug_print(result.decode())
         result = subprocess.check_output(['git', 'stash', 'clear'], stderr=subprocess.STDOUT)
-        debug_print(result)
+        debug_print(result.decode())
         result = subprocess.check_output(['git', 'pull', '--rebase'], stderr=subprocess.STDOUT)
-        debug_print(result)
-    except subprocess.CalledProcessError, C:
+        debug_print(result.decode())
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
 
 if has_submodules(checkout_dir):
     try:
         result = subprocess.check_output(['git', 'submodule', 'init'], stderr=subprocess.STDOUT)
-        debug_print(result)
+        debug_print(result.decode())
         result = subprocess.check_output(['git', 'submodule', 'sync'], stderr=subprocess.STDOUT)
-        debug_print(result)
-    except subprocess.CalledProcessError, C:
+        debug_print(result.decode())
+    except subprocess.CalledProcessError as C:
         notify_error('setup', C.output)
 
 build_subdir = builder_info[config['builder']]['build_subdir']
@@ -315,7 +315,7 @@ build_dir = '%s/%s' % (checkout_dir, build_subdir)
 # ensure build directory exist or creating the sync log would fail
 try:
     # TODO: use exist_ok instead of all this crap when switching to Python 3
-    os.makedirs(build_dir, mode=0775)
+    os.makedirs(build_dir, mode=0o775)
 except OSError as exc:
     if exc.errno == errno.EEXIST and os.path.isdir(build_dir):
         pass
@@ -335,15 +335,15 @@ if not args.sync_only:
             # don't use embedded libraries to build Nokogiri
             os.environ['NOKOGIRI_USE_SYSTEM_LIBRARIES'] = '1'
             result = subprocess.check_output(['bundle', 'install'], stderr=subprocess.STDOUT)
-            debug_print(result)
-        except subprocess.CalledProcessError, C:
+            debug_print(result.decode())
+        except subprocess.CalledProcessError as C:
             log_print(C.output)
             if config['remote']:
                 # copy log in build dir and sync it to make it available to users
                 shutil.copy2(log_file, sync_log_path)
                 try:
                     do_rsync(sync_log_path)
-                except subprocess.CalledProcessError, C:
+                except subprocess.CalledProcessError:
                     pass
             notify_error('install', C.output)
 
@@ -355,15 +355,15 @@ if not args.sync_only:
         command = builder_info[config['builder']]['build_command']
         syslog.syslog("Build of {}: {}".format(name, ' '.join(command)))
         result = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        debug_print(result)
-    except subprocess.CalledProcessError, C:
+        debug_print(result.decode())
+    except subprocess.CalledProcessError as C:
         log_print(C.output)
         if config['remote']:
             # copy log in build dir and sync it to make it available to users
             shutil.copy2(log_file, sync_log_path)
             try:
                 do_rsync(sync_log_path)
-            except subprocess.CalledProcessError, C:
+            except subprocess.CalledProcessError:
                 pass
         notify_error('build', C.output)
 
@@ -378,11 +378,11 @@ if not args.dry_run:
         else:
             command = builder_info[config['builder']]['deploy_command']
             if command:
-                result = subprocess.check_output(command)
+                result = subprocess.check_output(command).decode()
             else:
                 result = "No deployment done: no Rsync settings provided and this builder has no reployment method defined"
         debug_print(result)
-    except subprocess.CalledProcessError, C:
+    except subprocess.CalledProcessError as C:
         notify_error('deploy', C.output)
     syslog.syslog("Build of {}: finish sync".format(name))
 else:
