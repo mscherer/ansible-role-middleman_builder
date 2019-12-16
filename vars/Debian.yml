@@ -27,4 +27,6 @@ package_list:
   ascii_binder: []
   planet:
     - planet-venus
+  nikola:
+    - python3-pip
 

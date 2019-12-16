@@ -10,7 +10,7 @@
           - hostname
           - glibc-all-langpacks
         state: installed
-      when: ansible_distribution == 'Fedora'
+      when: ansible_distribution == 'Fedora' or (ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8)
     # to ensure having a real FQDN
     # (dots are not allowed in LXD container names, thus sticking to short names)
     - name: set proper hostname

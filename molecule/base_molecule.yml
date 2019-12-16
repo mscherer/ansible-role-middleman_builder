@@ -27,6 +27,8 @@ provisioner:
                 aliases:
                   # allow access via short DNS name
                   - "{{ item.name }}"
+        # used to switch the testing branch
+        tests_is_container: False
     host_vars:
       ansible-test-builder:
       ansible-test-web:

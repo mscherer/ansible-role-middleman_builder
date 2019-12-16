@@ -6,6 +6,11 @@ builder_repo:
     subdest: planet-venus
     writable_subdirs:
       - themes
+builder_setup:
+  nikola:
+    # not packaged
+    - pip3 install --user nikola
+    - "../.local/bin/nikola theme -i {{ nikola_theme | default('bootblog4') }}"
 sync_ssh_key_options: "command=\"rsync --server -vlogtrze.isf --delete-after --omit-dir-times . {{ rsync_location }}\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty"
 builder_command: "/usr/local/bin/build_deploy.py {{ builder_options | default('') }} /srv/builder/{{ builder_name }}.yml"
 
