@@ -21,4 +21,4 @@ provisioner:
       ansible-test-builder:
         builder: planet
         # known working website
-        git_url: https://github.com/redhat-openstack/website.git
+        git_url: https://gitlab.com/osas/ansible-role-web_builder_test_planet.git
