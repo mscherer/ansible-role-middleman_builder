@@ -141,9 +141,9 @@
 
 - name: "Schedule build and sync"
   include_tasks: schedule_build_and_sync.yml
-  when: ansible_env.container is undefined
+  when: (tests_is_container is defined) | ternary(not tests_is_container, ansible_env.container is undefined)
 
 - name: "Build now (container)"
   include_tasks: build.yml
-  when: ansible_env.container is defined and builder_container_build_now|bool
+  when: ((tests_is_container is defined) | ternary(tests_is_container, ansible_env.container is defined)) and builder_container_build_now|bool
 
